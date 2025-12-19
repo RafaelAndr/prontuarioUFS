@@ -4,6 +4,7 @@ import { FaArrowLeft } from "react-icons/fa";
 
 import TableSchedule from "./components/TableSchedule.jsx";
 import DadosIniciaisPlano from "./components/DadosIniciaisPlano.jsx";
+import useFormPersistence from "../../hooks/useFormPersistence.js";
 
 function FoodPlanForm() {
   const { pacienteId, anamneseId } = useParams();
@@ -12,6 +13,7 @@ function FoodPlanForm() {
   const [showUpdateSuccessModal, setUpdateShowSuccessModal] = useState(false);
 
   const [formData, setFormData] = useState({});
+  const { clearSaved } = useFormPersistence('foodPlanForm_' + pacienteId, formData, setFormData);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -66,6 +68,8 @@ console.log("Resposta:", await response.clone().json().catch(() => null));
         console.log("============");
 
       if (!response.ok) throw new Error("Erro ao salvar anamnese");
+
+      clearSaved();
 
       if (method === "PUT") {
         setUpdateShowSuccessModal(true);

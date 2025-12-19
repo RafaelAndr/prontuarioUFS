@@ -3,9 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { useEffect } from "react";
 
+
+import useFormPersistence from "../../hooks/useFormPersistence";
+
 function PatienteForm() {
   const { pacienteId } = useParams();
   const [formData, setFormData] = useState({});
+  const { clearSaved } = useFormPersistence("patienteForm", formData, setFormData);
   const [errors, setErrors] = useState({});
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showSuccessUpdateModal, setShowSuccessUpdateModal] = useState(false);
@@ -100,10 +104,11 @@ function PatienteForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    
     if (!validateForm()) {
       return;
     }
+
 
     const url = pacienteId
       ? `${API_URL}/pacientes/${pacienteId}`
@@ -127,6 +132,8 @@ function PatienteForm() {
 
       const data = await response.json();
       console.log("Paciente cadastrado:", data);
+
+      clearSaved();
 
       if (pacienteId) {
         setShowSuccessUpdateModal(true);

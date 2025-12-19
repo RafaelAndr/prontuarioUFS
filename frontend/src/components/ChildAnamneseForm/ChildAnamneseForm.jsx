@@ -10,6 +10,7 @@ import BioquimicaChild from "./components/BioquimicaChild";
 import HistoriaAlimentarChild from "./components/HistoriaAlimentarChild";
 import DiagnosticoConclusivoChild from "./components/DiagnosticoConclusivoChild";
 import DadosIniciaisChild from "./components/DadosIniciaisChild";
+import useFormPersistence from "../../hooks/useFormPersistence.js";
 
 function ChildAnamneseForm() {
   const { pacienteId, anamneseId } = useParams();
@@ -17,6 +18,7 @@ function ChildAnamneseForm() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showUpdateSuccessModal, setUpdateShowSuccessModal] = useState(false);
   const [formData, setFormData] = useState({});
+  const { clearSaved } = useFormPersistence('childAnamneseForm_' + pacienteId, formData, setFormData);
 
   useEffect(() => {
     if (anamneseId) {
@@ -56,6 +58,8 @@ function ChildAnamneseForm() {
       });
 
       if (!response.ok) throw new Error("Erro ao salvar anamnese");
+
+      clearSaved();
 
       if (method === "PUT") {
         setUpdateShowSuccessModal(true);

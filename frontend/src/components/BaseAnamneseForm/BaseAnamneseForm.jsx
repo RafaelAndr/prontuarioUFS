@@ -11,6 +11,7 @@ import AvaliacaoBioquimica from "./components/AvaliacaoBioquimica.jsx";
 import HistoriaAlimentar from "./components/HistoriaAlimentar.jsx";
 import DadosIniciais from "./components/DadosIniciais.jsx";
 import DiagnosticoConclusivo from "./components/DiagnosticoConclusivo.jsx";
+import useFormPersistence from "../../hooks/useFormPersistence.js";
 
 function BaseAnamneseForm() {
   const { pacienteId, anamneseId } = useParams();
@@ -19,6 +20,7 @@ function BaseAnamneseForm() {
   const [showUpdateSuccessModal, setUpdateShowSuccessModal] = useState(false);
 
   const [formData, setFormData] = useState({});
+  const { clearSaved } = useFormPersistence('baseAnamneseForm_' + pacienteId, formData, setFormData);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -58,6 +60,8 @@ function BaseAnamneseForm() {
       });
 
       if (!response.ok) throw new Error("Erro ao salvar anamnese");
+
+      clearSaved();
       
       if (method === "PUT") {
         setUpdateShowSuccessModal(true);

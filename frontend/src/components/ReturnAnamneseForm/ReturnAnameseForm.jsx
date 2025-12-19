@@ -8,6 +8,7 @@ import InqueritoRetorno from "./componentes/InqueritoRetorno";
 import ExameFisico from "./componentes/ExameFisico";
 import AntropometricaReturn from "./componentes/AntropometricaReturn";
 import ExameBioquimico from "./componentes/ExameBioquimico";
+import useFormPersistence from "../../hooks/useFormPersistence.js";
 
 const ReturnAnameseForm = () => {
   const { pacienteId, anamneseId } = useParams();
@@ -16,6 +17,7 @@ const ReturnAnameseForm = () => {
   const [showUpdateSuccessModal, setUpdateShowSuccessModal] = useState(false);
 
   const [formData, setFormData] = useState({});
+  const { clearSaved } = useFormPersistence('returnAnamneseForm_'+ pacienteId, formData, setFormData);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -55,6 +57,8 @@ const ReturnAnameseForm = () => {
       });
 
       if (!response.ok) throw new Error("Erro ao salvar anamnese");
+
+      clearSaved();
 
       if (method === "PUT") {
         setUpdateShowSuccessModal(true);

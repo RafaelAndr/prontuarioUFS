@@ -4,6 +4,7 @@ import { FaArrowLeft } from "react-icons/fa";
 
 import RecordatoryTable from "./components/RecordatoryTable.jsx";
 import ConsumoMensal from "./components/ConsumoMensal.jsx";
+import useFormPersistence from "../../hooks/useFormPersistence.js";
 
 function RecordatoryForm() {
   const { pacienteId, anamneseId } = useParams();
@@ -12,6 +13,7 @@ function RecordatoryForm() {
   const [showUpdateSuccessModal, setUpdateShowSuccessModal] = useState(false);
 
   const [formData, setFormData] = useState({ });
+  const { clearSaved } = useFormPersistence('recordatoryForm_' + pacienteId, formData, setFormData);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -51,6 +53,8 @@ function RecordatoryForm() {
       });
 
       if (!response.ok) throw new Error("Erro ao salvar anamnese");
+
+      clearSaved();
 
       if (method === "PUT") {
         setUpdateShowSuccessModal(true);
