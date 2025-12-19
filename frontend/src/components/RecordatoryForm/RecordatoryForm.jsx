@@ -5,6 +5,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import RecordatoryTable from "./components/RecordatoryTable.jsx";
 import ConsumoMensal from "./components/ConsumoMensal.jsx";
 import useFormPersistence from "../../hooks/useFormPersistence.js";
+import DraftModal from "../BaseAnamneseForm/components/DraftModal.jsx";
 
 function RecordatoryForm() {
   const { pacienteId, anamneseId } = useParams();
@@ -13,7 +14,9 @@ function RecordatoryForm() {
   const [showUpdateSuccessModal, setUpdateShowSuccessModal] = useState(false);
 
   const [formData, setFormData] = useState({ });
-  const { clearSaved } = useFormPersistence('recordatoryForm_' + pacienteId, formData, setFormData);
+  const formKey = 'recordatoryForm_' + pacienteId;
+  const { clearSaved } = useFormPersistence(formKey, formData, setFormData, 24, !anamneseId);
+  const [showDraftModal, setShowDraftModal] = useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -27,6 +30,13 @@ function RecordatoryForm() {
         .catch((err) => console.error("Erro ao carregar anamnese:", err));
     }
   }, [anamneseId]);
+
+  useEffect(() => {
+    const savedDraft = localStorage.getItem(formKey);
+    if (savedDraft && !anamneseId) {
+      setShowDraftModal(true);
+    }
+  }, [pacienteId, anamneseId]);
 
   const handleClick = () => {
     navigate(`/pagina-paciente/${pacienteId}`);
@@ -76,6 +86,16 @@ function RecordatoryForm() {
   const handleCloseUpdateModal = () => {
     setUpdateShowSuccessModal(false);
     navigate(`/pagina-paciente/${pacienteId}`);
+  };
+
+  const handleContinueDraft = () => {
+    setShowDraftModal(false);
+  };
+
+  const handleDiscardDraft = () => {
+    clearSaved();
+    setFormData({});
+    setShowDraftModal(false);
   };
 
   return (
@@ -221,6 +241,12 @@ function RecordatoryForm() {
             </div>
           </div>
         </div>
+      )}
+      {showDraftModal && (
+        <DraftModal
+          onContinue={handleContinueDraft}
+          onDiscard={handleDiscardDraft}
+        />
       )}
     </>
   );

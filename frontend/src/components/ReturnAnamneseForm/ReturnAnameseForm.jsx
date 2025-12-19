@@ -9,6 +9,7 @@ import ExameFisico from "./componentes/ExameFisico";
 import AntropometricaReturn from "./componentes/AntropometricaReturn";
 import ExameBioquimico from "./componentes/ExameBioquimico";
 import useFormPersistence from "../../hooks/useFormPersistence.js";
+import DraftModal from "../BaseAnamneseForm/components/DraftModal.jsx";
 
 const ReturnAnameseForm = () => {
   const { pacienteId, anamneseId } = useParams();
@@ -17,7 +18,9 @@ const ReturnAnameseForm = () => {
   const [showUpdateSuccessModal, setUpdateShowSuccessModal] = useState(false);
 
   const [formData, setFormData] = useState({});
-  const { clearSaved } = useFormPersistence('returnAnamneseForm_'+ pacienteId, formData, setFormData);
+  const formKey = 'returnAnamneseForm_' + pacienteId;
+  const { clearSaved } = useFormPersistence(formKey, formData, setFormData, 24, !anamneseId);
+  const [showDraftModal, setShowDraftModal] = useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -31,6 +34,13 @@ const ReturnAnameseForm = () => {
         .catch((err) => console.error("Erro ao carregar anamnese:", err));
     }
   }, [anamneseId]);
+
+  useEffect(() => {
+    const savedDraft = localStorage.getItem(formKey);
+    if (savedDraft && !anamneseId) {
+      setShowDraftModal(true);
+    }
+  }, [pacienteId, anamneseId]);
 
   const handleClick = () => {
     navigate(`/pagina-paciente/${pacienteId}`);
@@ -80,6 +90,16 @@ const ReturnAnameseForm = () => {
   const handleCloseUpdateModal = () => {
     setUpdateShowSuccessModal(false);
     navigate(`/pagina-paciente/${pacienteId}`);
+  };
+
+  const handleContinueDraft = () => {
+    setShowDraftModal(false);
+  };
+
+  const handleDiscardDraft = () => {
+    clearSaved();
+    setFormData({});
+    setShowDraftModal(false);
   };
 
   return (
@@ -268,6 +288,12 @@ const ReturnAnameseForm = () => {
             </div>
           </div>
         </div>
+      )}
+      {showDraftModal && (
+        <DraftModal
+          onContinue={handleContinueDraft}
+          onDiscard={handleDiscardDraft}
+        />
       )}
     </>
   );

@@ -1,7 +1,9 @@
 import { useEffect, useCallback } from "react";
 
-function useFormPersistence(formKey, formData, setFormData, expirationHours = 24) {
+function useFormPersistence(formKey, formData, setFormData, expirationHours = 24, shouldPersist = true) {
   useEffect(() => {
+    if (!shouldPersist) return;
+    
     const saved = localStorage.getItem(formKey);
     if (saved) {
       try {
@@ -22,6 +24,8 @@ function useFormPersistence(formKey, formData, setFormData, expirationHours = 24
   }, []);
 
   useEffect(() => {
+    if (!shouldPersist) return;
+    
     if (Object.keys(formData).length > 0) {
       const dataToSave = {
         data: formData,
@@ -29,7 +33,7 @@ function useFormPersistence(formKey, formData, setFormData, expirationHours = 24
       };
       localStorage.setItem(formKey, JSON.stringify(dataToSave));
     }
-  }, [formData, formKey]);
+  }, [formData, formKey, shouldPersist]);
 
   const clearSaved = useCallback(() => {
     localStorage.removeItem(formKey);

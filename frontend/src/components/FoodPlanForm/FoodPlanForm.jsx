@@ -5,6 +5,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import TableSchedule from "./components/TableSchedule.jsx";
 import DadosIniciaisPlano from "./components/DadosIniciaisPlano.jsx";
 import useFormPersistence from "../../hooks/useFormPersistence.js";
+import DraftModal from "../BaseAnamneseForm/components/DraftModal.jsx";
 
 function FoodPlanForm() {
   const { pacienteId, anamneseId } = useParams();
@@ -13,7 +14,9 @@ function FoodPlanForm() {
   const [showUpdateSuccessModal, setUpdateShowSuccessModal] = useState(false);
 
   const [formData, setFormData] = useState({});
-  const { clearSaved } = useFormPersistence('foodPlanForm_' + pacienteId, formData, setFormData);
+  const formKey = 'foodPlanForm_' + pacienteId;
+  const { clearSaved } = useFormPersistence(formKey, formData, setFormData, 24, !anamneseId);
+  const [showDraftModal, setShowDraftModal] = useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -29,6 +32,13 @@ function FoodPlanForm() {
         );
     }
   }, [anamneseId]);
+
+  useEffect(() => {
+    const savedDraft = localStorage.getItem(formKey);
+    if (savedDraft && !anamneseId) {
+      setShowDraftModal(true);
+    }
+  }, [pacienteId, anamneseId]);
 
   const handleClick = () => {
     navigate(`/pagina-paciente/${pacienteId}`);
@@ -91,6 +101,16 @@ console.log("Resposta:", await response.clone().json().catch(() => null));
   const handleCloseUpdateModal = () => {
     setUpdateShowSuccessModal(false);
     navigate(`/pagina-paciente/${pacienteId}`);
+  };
+
+  const handleContinueDraft = () => {
+    setShowDraftModal(false);
+  };
+
+  const handleDiscardDraft = () => {
+    clearSaved();
+    setFormData({});
+    setShowDraftModal(false);
   };
 
   return (
@@ -246,6 +266,12 @@ console.log("Resposta:", await response.clone().json().catch(() => null));
             </div>
           </div>
         </div>
+      )}
+      {showDraftModal && (
+        <DraftModal
+          onContinue={handleContinueDraft}
+          onDiscard={handleDiscardDraft}
+        />
       )}
     </>
   );
