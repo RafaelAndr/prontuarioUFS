@@ -17,6 +17,7 @@ class FoodPlan(Base):
     id = Column(Integer, primary_key=True, index=True)
     paciente_id = Column(Integer, ForeignKey("pacientes.id"))
     tipo_registro = Column(String, nullable=False)
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
 
     data_plano_alimentar = Column(Date, nullable=False)
     nutricionista_responsavel = Column(String, nullable=False)
@@ -48,4 +49,5 @@ class FoodPlan(Base):
     observacoes_plano_alimentar = Column(Text, nullable=True)
 
     paciente = relationship("Paciente", back_populates="food_plans")
+    user = relationship("User", back_populates="food_plans")
 

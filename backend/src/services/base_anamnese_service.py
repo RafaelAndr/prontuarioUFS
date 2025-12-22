@@ -4,7 +4,7 @@ from src.models.base_anamnese_model import BaseAnamneseCreate
 
 
 # CREATE
-async def cadastrar_base_anamnese(anamnese: BaseAnamneseCreate, db: Session):
+async def cadastrar_base_anamnese(anamnese: BaseAnamneseCreate, user_id: str, db: Session):
     """
     Cadastra uma nova anamnese base no banco de dados.
 
@@ -15,7 +15,7 @@ async def cadastrar_base_anamnese(anamnese: BaseAnamneseCreate, db: Session):
     Returns:
         BaseAnamnese: Objeto recém-criado e persistido no banco.
     """
-    nova_anamnese = BaseAnamnese(**anamnese.model_dump(exclude_unset=True))
+    nova_anamnese = BaseAnamnese(**anamnese.model_dump(exclude_unset=True), user_id=user_id)
     db.add(nova_anamnese)
     db.commit()
     db.refresh(nova_anamnese)
@@ -23,7 +23,7 @@ async def cadastrar_base_anamnese(anamnese: BaseAnamneseCreate, db: Session):
 
 
 # READ - listar todos
-async def listar_base_anamneses(db: Session):
+async def listar_base_anamneses(user_id: str, db: Session):
     """
     Lista todas as anamneses base cadastradas.
 
@@ -33,11 +33,11 @@ async def listar_base_anamneses(db: Session):
     Returns:
         list[BaseAnamnese]: Lista completa de registros.
     """
-    return db.query(BaseAnamnese).all()
+    return db.query(BaseAnamnese).filter(BaseAnamnese.user_id == user_id).all()
 
 
 # READ - buscar por ID
-async def buscar_base_anamnese(id: int, db: Session):
+async def buscar_base_anamnese(id: int, user_id: str, db: Session):
     """
     Busca uma anamnese base pelo ID.
 
@@ -48,12 +48,12 @@ async def buscar_base_anamnese(id: int, db: Session):
     Returns:
         BaseAnamnese | None: Registro encontrado ou None se não existir.
     """
-    anamnese = db.query(BaseAnamnese).filter(BaseAnamnese.id == id).first()
+    anamnese = db.query(BaseAnamnese).filter(BaseAnamnese.id == id, BaseAnamnese.user_id == user_id).first()
     return anamnese
 
 
 # UPDATE
-async def atualizar_base_anamnese(id: int, dados: BaseAnamneseCreate, db: Session):
+async def atualizar_base_anamnese(id: int, dados: BaseAnamneseCreate, user_id: str, db: Session):
     """
     Atualiza uma anamnese base com os dados fornecidos.
 
@@ -67,7 +67,7 @@ async def atualizar_base_anamnese(id: int, dados: BaseAnamneseCreate, db: Sessio
     Returns:
         BaseAnamnese | None: Registro atualizado ou None se não encontrado.
     """
-    anamnese = db.query(BaseAnamnese).filter(BaseAnamnese.id == id).first()
+    anamnese = db.query(BaseAnamnese).filter(BaseAnamnese.id == id, BaseAnamnese.user_id == user_id).first()
     if not anamnese:
         return None
 
@@ -80,7 +80,7 @@ async def atualizar_base_anamnese(id: int, dados: BaseAnamneseCreate, db: Sessio
 
 
 # DELETE
-async def deletar_base_anamnese(id: int, db: Session):
+async def deletar_base_anamnese(id: int, user_id: str, db: Session):
     """
     Deleta uma anamnese base do banco de dados.
 
@@ -91,7 +91,7 @@ async def deletar_base_anamnese(id: int, db: Session):
     Returns:
         bool: True se deletou com sucesso, False se não existir.
     """
-    anamnese = db.query(BaseAnamnese).filter(BaseAnamnese.id == id).first()
+    anamnese = db.query(BaseAnamnese).filter(BaseAnamnese.id == id, BaseAnamnese.user_id == user_id).first()
     if anamnese:
         db.delete(anamnese)
         db.commit()
@@ -100,7 +100,7 @@ async def deletar_base_anamnese(id: int, db: Session):
 
 
 # READ - buscar por paciente_id
-async def buscar_base_anamneses_por_paciente(paciente_id: int, db: Session):
+async def buscar_base_anamneses_por_paciente(paciente_id: int, user_id: str, db: Session):
     """
     Lista todas as anamneses base associadas a um paciente específico.
 
@@ -111,5 +111,5 @@ async def buscar_base_anamneses_por_paciente(paciente_id: int, db: Session):
     Returns:
         list[BaseAnamnese]: Lista de anamneses vinculadas ao paciente.
     """
-    anamneses = db.query(BaseAnamnese).filter(BaseAnamnese.paciente_id == paciente_id).all()
+    anamneses = db.query(BaseAnamnese).filter(BaseAnamnese.paciente_id == paciente_id, BaseAnamnese.user_id == user_id).all()
     return anamneses

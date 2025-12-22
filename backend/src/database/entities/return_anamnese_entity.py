@@ -25,6 +25,7 @@ class ReturnAnamnese(Base):
     id = Column(Integer, primary_key=True, index=True)
     paciente_id = Column(Integer, ForeignKey("pacientes.id"))
     tipo_registro = Column(String, nullable=False)
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
 
     data_consulta = Column(Date, nullable=False)
     numero_prontuario = Column(String, unique=False, nullable=True)
@@ -91,3 +92,4 @@ class ReturnAnamnese(Base):
 
 
     paciente = relationship("Paciente", back_populates="return_anamneses")
+    user = relationship("User", back_populates="return_anamneses")

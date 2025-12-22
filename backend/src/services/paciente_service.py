@@ -4,7 +4,7 @@ from src.models.paciente_model import PacienteCreate
 from sqlalchemy import select
 
 
-async def cadastrar_paciente(paciente: PacienteCreate, db: Session):
+async def cadastrar_paciente(paciente: PacienteCreate, user_id: str, db: Session):
     """
     Cadastra um novo paciente no banco de dados.
 
@@ -23,7 +23,8 @@ async def cadastrar_paciente(paciente: PacienteCreate, db: Session):
             nome=paciente.nome,
             data_nascimento=paciente.data_nascimento,
             telefone=paciente.telefone,
-            endereco=paciente.endereco
+            endereco=paciente.endereco,
+            user_id=user_id
         )
         db.add(novo_paciente)
         db.commit()
@@ -34,7 +35,7 @@ async def cadastrar_paciente(paciente: PacienteCreate, db: Session):
         raise e
 
 
-async def deletar_paciente(paciente_id: int, db: Session):
+async def deletar_paciente(paciente_id: int, user_id: str, db: Session):
     """
     Remove um paciente do banco de dados.
 
@@ -45,7 +46,7 @@ async def deletar_paciente(paciente_id: int, db: Session):
     Returns:
         bool: True se o paciente foi deletado, False se não encontrado.
     """
-    paciente = db.query(Paciente).filter(Paciente.id == paciente_id).first()
+    paciente = db.query(Paciente).filter(Paciente.id == paciente_id, Paciente.user_id == user_id).first()
     if paciente:
         db.delete(paciente)
         db.commit()
@@ -54,7 +55,7 @@ async def deletar_paciente(paciente_id: int, db: Session):
 
 
 # READ (listar todos)
-async def listar_pacientes(db: Session):
+async def listar_pacientes(user_id: str, db: Session):
     """
     Lista todos os pacientes cadastrados.
 
@@ -64,11 +65,11 @@ async def listar_pacientes(db: Session):
     Returns:
         list[Paciente]: Lista completa de pacientes.
     """
-    return db.query(Paciente).all()
+    return db.query(Paciente).filter(Paciente.user_id == user_id).all()
 
 
 # READ (buscar por id)
-async def buscar_paciente(id: int, db: Session):
+async def buscar_paciente(id: int, user_id: str, db: Session):
     """
     Busca um paciente específico pelo ID.
 
@@ -79,12 +80,12 @@ async def buscar_paciente(id: int, db: Session):
     Returns:
         Paciente | None: Paciente encontrado ou None se não existir.
     """
-    paciente = db.query(Paciente).filter(Paciente.id == id).first()
+    paciente = db.query(Paciente).filter(Paciente.id == id, Paciente.user_id == user_id).first()
     return paciente
 
 
 # READ (buscar por nome)
-async def buscar_paciente_por_nome(nome: str | None, db: Session):
+async def buscar_paciente_por_nome(nome: str | None, user_id: str, db: Session):
     """
     Busca pacientes filtrando pelo nome (parcial ou completo).
 
@@ -97,7 +98,7 @@ async def buscar_paciente_por_nome(nome: str | None, db: Session):
     Returns:
         list[Paciente]: Lista de pacientes filtrados pelo nome.
     """
-    query = select(Paciente)
+    query = select(Paciente).filter(Paciente.user_id == user_id)
 
     if nome:
         query = query.filter(Paciente.nome.ilike(f"%{nome}%"))
@@ -107,7 +108,7 @@ async def buscar_paciente_por_nome(nome: str | None, db: Session):
 
 
 # UPDATE
-async def atualizar_paciente(id: int, dados: PacienteCreate, db: Session):
+async def atualizar_paciente(id: int, dados: PacienteCreate, user_id: str, db: Session):
     """
     Atualiza os dados de um paciente existente.
 
@@ -119,7 +120,7 @@ async def atualizar_paciente(id: int, dados: PacienteCreate, db: Session):
     Returns:
         Paciente | None: Paciente atualizado ou None se não existir.
     """
-    paciente = db.query(Paciente).filter(Paciente.id == id).first()
+    paciente = db.query(Paciente).filter(Paciente.id == id, Paciente.user_id == user_id).first()
     if not paciente:
         return None
 
