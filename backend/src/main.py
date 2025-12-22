@@ -9,7 +9,8 @@ from src.routes import (
     child_anamnese_route,
     return_anamnese_route,
     food_plan_route,
-    recordatory_route
+    recordatory_route,
+    user_route,
 )
 
 from src.database.connection import Base, engine
@@ -32,6 +33,7 @@ app.add_middleware(
 Base.metadata.create_all(bind=engine)
 
 # Inclui as rotas
+app.include_router(user_route.router)
 app.include_router(paciente_route.router)
 app.include_router(base_anamnese_route.router)
 app.include_router(child_anamnese_route.router)
