@@ -10,6 +10,7 @@ import BioquimicaChild from "./components/BioquimicaChild";
 import HistoriaAlimentarChild from "./components/HistoriaAlimentarChild";
 import DiagnosticoConclusivoChild from "./components/DiagnosticoConclusivoChild";
 import DadosIniciaisChild from "./components/DadosIniciaisChild";
+import api from "../../services/api.js";
 
 function ChildAnamneseForm() {
   const { pacienteId, anamneseId } = useParams();
@@ -20,10 +21,9 @@ function ChildAnamneseForm() {
 
   useEffect(() => {
     if (anamneseId) {
-      fetch(`${API_URL}/child-anamneses/${anamneseId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setFormData(data);
+      api.get(`/child-anamneses/${anamneseId}`)
+        .then((res) => {
+          setFormData(res.data);
         })
         .catch((err) => console.error("Erro ao carregar anamnese:", err));
     }
@@ -33,36 +33,23 @@ function ChildAnamneseForm() {
     navigate(`/pagina-paciente/${pacienteId}`);
   };
 
-  const API_URL = import.meta.env.VITE_API_URL;
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const url = anamneseId
-      ? `${API_URL}/child-anamneses/${anamneseId}`
-      : `${API_URL}/child-anamneses/cadastrar`;
-
-    const method = anamneseId ? "PUT" : "POST";
+    const data = {
+      paciente_id: Number(pacienteId),
+      tipo_registro: "Anamnese Infantil",
+      ...formData,
+    };
 
     try {
-      const response = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          paciente_id: Number(pacienteId),
-          tipo_registro: "Anamnese Infantil",
-          ...formData,
-        }),
-      });
-
-      if (!response.ok) throw new Error("Erro ao salvar anamnese");
-
-      if (method === "PUT") {
+      if (anamneseId) {
+        await api.put(`/child-anamneses/${anamneseId}`, data);
         setUpdateShowSuccessModal(true);
-        return;
+      } else {
+        await api.post('/child-anamneses/cadastrar', data);
+        setShowSuccessModal(true);
       }
-      setShowSuccessModal(true);
-      
     } catch (error) {
       console.error(error);
       alert("Erro ao salvar anamnese.");

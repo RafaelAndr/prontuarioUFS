@@ -11,6 +11,7 @@ import SintomasClinicosDetails from "./components/SintomasClinicosDetails.jsx";
 import InformacoesGerais from "./components/InformacoesGerais.jsx";
 import BioquimicaDetails from "./components/BioquimicaDetails.jsx";
 import HistoriaAlimentarDetails from "./components/HistoriaAlimentarDetails.jsx";
+import api from "../../services/api.js";
 
 const AnamnesesDetails = () => {
   const navigate = useNavigate();
@@ -20,8 +21,6 @@ const AnamnesesDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const API_URL = import.meta.env.VITE_API_URL;
-
   const handleClick = () => {
     navigate(`/pagina-paciente/${anamnese.paciente_id}`);
   };
@@ -29,12 +28,11 @@ const AnamnesesDetails = () => {
   useEffect(() => {
     const fetchAnamnese = async () => {
       try {
-        const response = await fetch(`${API_URL}/base-anamneses/${id}`);
-        if (!response.ok) throw new Error("Erro ao buscar anamnese");
-        const data = await response.json();
-        setAnamnese(data);
+        const response = await api.get(`/base-anamneses/${id}`);
+        setAnamnese(response.data);
       } catch (err) {
-        setError(err.message);
+        const errorMsg = err.response?.data?.message || err.message || "Erro ao buscar anamnese";
+        setError(errorMsg);
       } finally {
         setLoading(false);
       }

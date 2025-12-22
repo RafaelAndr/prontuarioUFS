@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { useEffect } from "react";
+import api from "../../services/api.js";
 
 function PatienteForm() {
   const { pacienteId } = useParams();
@@ -84,15 +85,12 @@ function PatienteForm() {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
-  const API_URL = import.meta.env.VITE_API_URL;
   
   useEffect(() => {
     if (pacienteId) {
-      fetch(`${API_URL}/pacientes/${pacienteId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setFormData(data);
+      api.get(`/pacientes/${pacienteId}`)
+        .then((res) => {
+          setFormData(res.data);
         })
         .catch((err) => console.error("Erro ao carregar paciente:", err));
     }
@@ -105,34 +103,19 @@ function PatienteForm() {
       return;
     }
 
-    const url = pacienteId
-      ? `${API_URL}/pacientes/${pacienteId}`
-      : `${API_URL}/pacientes/cadastrar`;
-
-    const method = pacienteId ? "PUT" : "POST";
-
     try {
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Erro ao cadastrar paciente");
-      }
-
-      const data = await response.json();
-      console.log("Paciente cadastrado:", data);
-
+      let data;
       if (pacienteId) {
+        const response = await api.put(`/pacientes/${pacienteId}`, formData);
+        data = response.data;
         setShowSuccessUpdateModal(true);
       } else {
+        const response = await api.post('/pacientes/cadastrar', formData);
+        data = response.data;
         setShowSuccessModal(true);
       }
+
+      console.log("Paciente cadastrado:", data);
 
       setFormData({
         nome: "",
@@ -143,9 +126,8 @@ function PatienteForm() {
       setErrors({});
     } catch (error) {
       console.error("Erro ao cadastrar paciente:", error);
-      setErrorMessage(
-        "Erro ao cadastrar paciente. Por favor, tente novamente.",
-      );
+      const errorMsg = error.response?.data?.message || "Erro ao cadastrar paciente. Por favor, tente novamente.";
+      setErrorMessage(errorMsg);
       setShowErrorModal(true);
     }
   };

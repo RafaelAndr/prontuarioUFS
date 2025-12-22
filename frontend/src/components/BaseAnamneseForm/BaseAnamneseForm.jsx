@@ -11,6 +11,7 @@ import AvaliacaoBioquimica from "./components/AvaliacaoBioquimica.jsx";
 import HistoriaAlimentar from "./components/HistoriaAlimentar.jsx";
 import DadosIniciais from "./components/DadosIniciais.jsx";
 import DiagnosticoConclusivo from "./components/DiagnosticoConclusivo.jsx";
+import api from "../../services/api.js";
 
 function BaseAnamneseForm() {
   const { pacienteId, anamneseId } = useParams();
@@ -19,15 +20,12 @@ function BaseAnamneseForm() {
   const [showUpdateSuccessModal, setUpdateShowSuccessModal] = useState(false);
 
   const [formData, setFormData] = useState({});
-
-  const API_URL = import.meta.env.VITE_API_URL;
-
+  
   useEffect(() => {
     if (anamneseId) {
-      fetch(`${API_URL}/base-anamneses/${anamneseId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setFormData(data);
+      api.get(`/base-anamneses/${anamneseId}`)
+        .then((res) => {
+          setFormData(res.data);
         })
         .catch((err) => console.error("Erro ao carregar anamnese:", err));
     }
@@ -40,31 +38,20 @@ function BaseAnamneseForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const url = anamneseId
-      ? `${API_URL}/base-anamneses/${anamneseId}`
-      : `${API_URL}/base-anamneses/cadastrar`;
-
-    const method = anamneseId ? "PUT" : "POST";
+    const data = {
+      paciente_id: Number(pacienteId),
+      tipo_registro: "Anamnese Padrão",
+      ...formData,
+    };
 
     try {
-      const response = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          paciente_id: Number(pacienteId),
-          tipo_registro: "Anamnese Padrão",
-          ...formData,
-        }),
-      });
-
-      if (!response.ok) throw new Error("Erro ao salvar anamnese");
-      
-      if (method === "PUT") {
+      if (anamneseId) {
+        await api.put(`/base-anamneses/${anamneseId}`, data);
         setUpdateShowSuccessModal(true);
-        return;
+      } else {
+        await api.post('/base-anamneses/cadastrar', data);
+        setShowSuccessModal(true);
       }
-      setShowSuccessModal(true);
-    
     } catch (error) {
       console.error(error);
       alert("Erro ao salvar anamnese.");

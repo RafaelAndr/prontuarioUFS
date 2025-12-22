@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../providers/authProvider.jsx";
 import { Container, Row, Col, Card, Form, Button, Alert, Spinner } from "react-bootstrap";
 
+import api from "../../services/api.js";
+
 const LoginPage = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -20,36 +22,24 @@ const LoginPage = () => {
         setLoading(true);
 
         try {
-            const response = await fetch(`${API_URL}/auth/login`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    email,
-                    password,
-                }),
+            const { data } = await api.post(`/auth/login`, {
+                email,
+                password,
             });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                if (response.status === 422) {
-                    throw new Error("Email com formato inválido");
-                }
-                throw new Error(errorData.detail || "Erro ao fazer login");
-            }
-
-            const data = await response.json();
 
             if (data.token) {
                 setToken(data.token);
                 navigate("/", { replace: true });
             }
         } catch (error) {
-            console.error("Erro ao fazer login:", error);
-            setError(
-                error.message || "Erro ao fazer login. Verifique suas credenciais."
-            );
+            
+            if (error.response?.status === 422) {
+                setError("Email com formato inválido");
+            } else if (error.response?.data?.detail) {
+                setError(error.response.data.detail);
+            } else {
+                setError("Erro ao fazer login. Verifique suas credenciais.");
+            }
         } finally {
             setLoading(false);
         }

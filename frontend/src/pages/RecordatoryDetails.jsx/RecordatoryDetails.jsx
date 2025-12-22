@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Card } from "react-bootstrap";
 import { FaArrowLeft } from "react-icons/fa";
 import TableDetails from "./components/TableDetails.jsx";
+import api from "../../services/api.js";
 
 const RecordatoryDetails = () => {
   const navigate = useNavigate();
@@ -12,8 +13,6 @@ const RecordatoryDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const API_URL = import.meta.env.VITE_API_URL;
-
   const handleClick = () => {
     navigate(`/pagina-paciente/${anamnese.paciente_id}`);
   };
@@ -21,14 +20,11 @@ const RecordatoryDetails = () => {
   useEffect(() => {
     const fetchAnamnese = async () => {
       try {
-        const response = await fetch(`${API_URL}/recordatorys/${id}`);
-        if (!response.ok)
-          throw new Error("Erro ao buscar recordatório alimentar");
-
-        const data = await response.json();
-        setAnamnese(data);
+        const response = await api.get(`/recordatorys/${id}`);
+        setAnamnese(response.data);
       } catch (err) {
-        setError(err.message);
+        const errorMsg = err.response?.data?.message || err.message || "Erro ao buscar recordatório alimentar";
+        setError(errorMsg);
       } finally {
         setLoading(false);
       }
