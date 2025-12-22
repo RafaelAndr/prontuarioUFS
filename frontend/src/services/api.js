@@ -29,7 +29,8 @@ api.interceptors.response.use(
   },
   (error) => {
     // Se o token expirou ou é inválido (401), redireciona para login
-    if (error.response?.status === 401) {
+    // MAS não redireciona se o erro for na própria rota de login
+    if (error.response?.status === 401 && !error.config.url.includes("/auth/login")) {
       localStorage.removeItem("token");
       window.location.href = "/login";
     }
