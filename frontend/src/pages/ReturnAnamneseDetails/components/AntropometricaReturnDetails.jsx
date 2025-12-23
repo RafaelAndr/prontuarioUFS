@@ -1,6 +1,17 @@
 import { Card } from "react-bootstrap";
 
 const AntropometricaReturnDetails = ({ anamnese }) => {
+  const grauImcLabels = {
+    desnutricao_grau_i: "Desnutrição Grau 1",
+    desnutricao_grau_ii: "Desnutrição Grau 2",
+    desnutricao_grau_iii: "Desnutrição Grau 3",
+    eutrofia: "Eutrofia",
+    sobrepeso: "Sobrepeso",
+    obesidade_grau_i: "Obesidade Grau 1",
+    obesidade_grau_ii: "Obesidade Grau 2",
+    obesidade_grau_iii: "Obesidade Grau 3"
+  };
+
   return (
     <div>
       <Card.Body>
@@ -82,7 +93,7 @@ const AntropometricaReturnDetails = ({ anamnese }) => {
           <div className="col-md-3">
             <div className="flex-grow-1">
               <small className="text-muted d-block">Grau do IMC:</small>
-              <span className="fw-medium">{anamnese.grau_imc || "-"}</span>
+              <span className="fw-medium">{grauImcLabels[anamnese.grau_imc] || "-"}</span>
             </div>
           </div>
         </div>

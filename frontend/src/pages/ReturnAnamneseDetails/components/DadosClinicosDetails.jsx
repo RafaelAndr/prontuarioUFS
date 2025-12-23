@@ -140,7 +140,7 @@ const DadosClinicosDetails = ({ anamnese }) => {
                   ? "Sim"
                   : anamnese.disfagia === false
                     ? "Não"
-                    : ""}
+                    : "-"}
               </span>
             </div>
           </div>
@@ -152,7 +152,7 @@ const DadosClinicosDetails = ({ anamnese }) => {
                   ? "Sim"
                   : anamnese.odinofagia === false
                     ? "Não"
-                    : ""}
+                    : "-"}
               </span>
             </div>
           </div>
@@ -164,7 +164,7 @@ const DadosClinicosDetails = ({ anamnese }) => {
                   ? "Sim"
                   : anamnese.dispepsia === false
                     ? "Não"
-                    : ""}
+                    : "-"}
               </span>
             </div>
           </div>
@@ -176,7 +176,7 @@ const DadosClinicosDetails = ({ anamnese }) => {
                   ? "Sim"
                   : anamnese.nauseas === false
                     ? "Não"
-                    : ""}
+                    : "-"}
               </span>
             </div>
           </div>
@@ -188,7 +188,7 @@ const DadosClinicosDetails = ({ anamnese }) => {
                   ? "Sim"
                   : anamnese.vomitos === false
                     ? "Não"
-                    : ""}
+                    : "-"}
               </span>
             </div>
           </div>
@@ -200,7 +200,7 @@ const DadosClinicosDetails = ({ anamnese }) => {
                   ? "Sim"
                   : anamnese.flatulencia === false
                     ? "Não"
-                    : ""}
+                    : "-"}
               </span>
             </div>
           </div>

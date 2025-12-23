@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Card } from "react-bootstrap";
 import { FaArrowLeft } from "react-icons/fa";
 
@@ -14,23 +14,24 @@ const ReturnAnamneseDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const [anamnese, setAnamnese] = useState(null); 
+  const [anamnese, setAnamnese] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null); 
+  const [error, setError] = useState(null);
+
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const handleClick = () => {
     navigate(`/pagina-paciente/${anamnese.paciente_id}`);
   };
 
-  const API_URL = import.meta.env.VITE_API_URL;
-
   useEffect(() => {
     const fetchAnamnese = async () => {
       try {
         const response = await fetch(
-          `${API_URL}/return-anamneses/${id}`,
+          `${API_URL}/return-anamneses/${id}`
         );
-        if (!response.ok) throw new Error("Erro ao buscar anamnese");
+        if (!response.ok)
+          throw new Error("Erro ao buscar anamnese de retorno");
 
         const data = await response.json();
         setAnamnese(data);
@@ -44,7 +45,28 @@ const ReturnAnamneseDetails = () => {
     fetchAnamnese();
   }, [id]);
 
-  if (loading) return <p>Carregando detalhes...</p>;
+  /* ===== SPINNER PADRÃO ===== */
+  if (loading) {
+    return (
+      <div className="container mt-4">
+        <Card className="border-0 shadow-sm rounded-3">
+          <div className="text-center py-5">
+            <div
+              className="spinner-border text-primary mb-3"
+              role="status"
+              style={{ width: "2rem", height: "2rem" }}
+            >
+              <span className="visually-hidden">Carregando...</span>
+            </div>
+            <p className="text-muted mb-0">
+              Carregando Registro...
+            </p>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   if (error) return <p className="text-danger">Erro: {error}</p>;
   if (!anamnese) return <p>Nenhuma informação encontrada.</p>;
 
@@ -63,7 +85,7 @@ const ReturnAnamneseDetails = () => {
         Detalhes da Anamnese de Retorno
       </Card.Title>
 
-      <Card className="mb-3">
+      <Card className="mb-3 border-0 shadow-sm rounded-3">
         <InformacoesGerais anamnese={anamnese} />
         <DadosClinicosDetails anamnese={anamnese} />
         <InqueritoRetornoDetails anamnese={anamnese} />

@@ -91,7 +91,7 @@ const SaudeChild = ({ formData, setFormData }) => {
           </label>
           <textarea
             className="form-control"
-            placeholder=""
+            placeholder="Descreva a história da gestação"
             id="historia_gestacao"
             name="historia_gestacao"
             style={{ height: "150px" }}

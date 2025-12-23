@@ -26,7 +26,7 @@ const InformacoesGerais = ({ anamnese }) => {
                   className="text-muted text-uppercase fw-semibold"
                   style={{ fontSize: "0.75rem", letterSpacing: "0.5px" }}
                 >
-                  Data da Consulta
+                  Data do Retorno
                 </small>
               </div>
               <div className="fw-semibold text-dark ms-2">
@@ -63,7 +63,7 @@ const InformacoesGerais = ({ anamnese }) => {
                   className="text-muted text-uppercase fw-semibold"
                   style={{ fontSize: "0.75rem", letterSpacing: "0.5px" }}
                 >
-                  Tipo da Anamnese
+                  Tipo do Registro
                 </small>
               </div>
               <div className="fw-semibold text-dark ms-2">

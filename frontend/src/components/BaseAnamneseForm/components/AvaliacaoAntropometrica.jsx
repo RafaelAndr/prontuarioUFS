@@ -170,10 +170,10 @@ const AvaliacaoAntropometrica = ({ formData, setFormData }) => {
             <label className="form-label form-side text-muted small">Pescoço:</label>
             <input
               type="text"
-              name="comprimento_pescoco"
+              name="circunferencia_pescoco"
               className="form-control form-control-sm"
               style={{width:"100px"}}
-              value={formData.comprimento_pescoco || ""}
+              value={formData.circunferencia_pescoco || ""}
               onChange={handleChange}
             />
           </div>

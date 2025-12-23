@@ -124,7 +124,7 @@ const DadosBioimpedancia = ({ formData, setFormData }) => {
            <div className="d-flex align-items-center gap-2 col-md-4">
             <label className="form-label form-side text-muted small">
               Água da massa magra (%):
-            </label>
+            </label> 
             <input
               type="text"
               className="form-control form-control-sm"
@@ -149,12 +149,7 @@ const DadosBioimpedancia = ({ formData, setFormData }) => {
           </div>
         </div>
 
-        <div className="row g-3 mt-2">
-          
-
-         
-
-          
+        <div className="row g-3 mt-2">  
         </div>
       </div>
     </>

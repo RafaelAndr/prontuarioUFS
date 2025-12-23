@@ -63,7 +63,7 @@ const SocioEconomicosDetails = ({ anamnese }) => {
                       ? anamnese.atividade_dentro_casa || ""
                       : anamnese.faz_atividade_dentro_casa === false
                       ? "Não Exerce"
-                      : ""}
+                      : "-"}
                   </span>
                 </div>
               </div>

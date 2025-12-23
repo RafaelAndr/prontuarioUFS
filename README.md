@@ -3,30 +3,3 @@
 Sistema completo de gerenciamento de pacientes, anamneses, planos alimentares e dados clínicos, desenvolvido em FastAPI, React, PostgreSQL e Docker.
 Projetado para clínicas, consultórios e ambientes acadêmicos, com foco na rapidez, segurança, escalabilidade e usabilidade.
 
- Tecnologias Utilizadas
- 
-Backend
-
- Python 3.10+
-
- FastAPI
-
- PostgreSQL
-
- SQLAlchemy + Alembic
-
- Pydantic
-
- Docker / Docker Compose 
-
- ReportLab 
- 
-
-Frontend
-
- React + Vite
-
- Bootstrap / React-Bootstrap
-
- CSS personalizado
-
