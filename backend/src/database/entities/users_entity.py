@@ -1,5 +1,6 @@
 from sqlalchemy import (
-    Column, 
+    Column,
+    ForeignKey, 
     String, 
 )
 import uuid
@@ -13,7 +14,10 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     name = Column(String, nullable=True)
     hashed_password = Column(String, nullable=False)
+    default_workspace_id: Mapped[str | None] = mapped_column(String(36), ForeignKey("workspaces.id"), nullable=True)
     
+    workspaces = relationship("WorkspaceMember", back_populates="user", cascade="all, delete-orphan")
+
     pacientes = relationship("Paciente", back_populates="user")
     base_anamneses = relationship("BaseAnamnese", back_populates="user")
     child_anamneses = relationship("ChildAnamnese", back_populates="user")

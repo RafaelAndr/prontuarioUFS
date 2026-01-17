@@ -25,6 +25,7 @@ class ChildAnamnese(Base):
     paciente_id = Column(Integer, ForeignKey("pacientes.id"))
     tipo_registro = Column(String, nullable=False)
     user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    workspace_id = Column(String(36), ForeignKey("workspaces.id"), nullable=False)
 
     data_consulta = Column(Date, nullable=False)
     numero_prontuario = Column(String, unique=False, nullable=True)
@@ -135,3 +136,4 @@ class ChildAnamnese(Base):
 
     paciente = relationship("Paciente", back_populates="child_anamneses")
     user = relationship("User", back_populates="child_anamneses")
+    workspace = relationship("Workspace", back_populates="child_anamneses")

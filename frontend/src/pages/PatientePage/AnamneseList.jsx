@@ -127,6 +127,20 @@ const AnamneseList = () => {
     }
   };
 
+  const handleGerarPdf = async (item) => {
+    try {
+      const response = await api.get(`/food-plans/${item.id}/pdf`, {
+        responseType: "blob",
+      });
+      const file = new Blob([response.data], { type: "application/pdf" });
+      const fileURL = URL.createObjectURL(file);
+      window.open(fileURL, "_blank");
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      alert("Erro ao gerar PDF. Verifique se você tem permissão.");
+    }
+  };
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -268,11 +282,7 @@ const AnamneseList = () => {
 
                   {item.tipo === "plano" && (
                     <Dropdown.Item
-                      onClick={() =>
-                        window.open(
-                          `${api.defaults.baseURL}/food-plans/${item.id}/pdf`,
-                        )
-                      }
+                      onClick={() => handleGerarPdf(item)}
                     >
                       Gerar PDF
                     </Dropdown.Item>

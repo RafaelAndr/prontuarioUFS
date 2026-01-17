@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../providers/authProvider.jsx";
 import { Container, Row, Col, Card, Form, Button, Alert, Spinner } from "react-bootstrap";
 
@@ -11,7 +11,7 @@ const LoginPage = () => {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
-    const { setToken } = useAuth();
+    const { setToken, setWorkspaceId } = useAuth();
     const navigate = useNavigate();
 
     const API_URL = import.meta.env.VITE_API_URL;
@@ -29,7 +29,14 @@ const LoginPage = () => {
 
             if (data.token) {
                 setToken(data.token);
-                navigate("/", { replace: true });
+                
+                if (data.default_workspace_id) {
+                    setWorkspaceId(data.default_workspace_id);
+                    navigate("/", { replace: true });
+                } else {
+                    // Se não tem workspace padrão, vai para seleção de clínica
+                    navigate("/workspace-selection", { replace: true });
+                }
             }
         } catch (error) {
             
@@ -114,6 +121,12 @@ const LoginPage = () => {
                                         )}
                                     </Button>
                                 </Form>
+
+                                <div className="text-center mt-4">
+                                    <small className="text-muted">
+                                        Não tem uma conta? <Link to="/cadastro" className="fw-bold">Criar uma conta</Link>
+                                    </small>
+                                </div>
                             </Card.Body>
                         </Card>
                     </Col>

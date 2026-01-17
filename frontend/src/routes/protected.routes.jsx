@@ -1,4 +1,4 @@
-import { ProtectedRoute } from "../components/auth/ProtectecRoute.jsx";
+import { ProtectedRoute } from "../components/auth/ProtectedRoute.jsx";
 import InitialPage from "../pages/InitialPage/InitialPage.jsx";
 import PatienteForm from "../components/PatienteForm/PatienteForm.jsx";
 import PatientePage from "../pages/PatientePage/PatientePage.jsx";
@@ -14,11 +14,23 @@ import FoodPlanDetails from "../pages/FoodPlanDetails.jsx/FoodPlanDetails.jsx";
 import RecordatoryDetails from "../pages/RecordatoryDetails.jsx/RecordatoryDetails.jsx";
 
 
+import WorkspaceSelection from "../pages/WorkspaceSelection/WorkspaceSelection.jsx";
+import WorkspaceSettings from "../pages/WorkspaceSettings/WorkspaceSettings.jsx";
+
+
 export const protectedRoutes = [
     {
         path: "/",
         element: <ProtectedRoute />,
         children: [
+            {
+                path: "/workspace-selection",
+                element: <WorkspaceSelection />,
+            },
+            {
+                path: "/configuracoes-clinica",
+                element: <WorkspaceSettings />,
+            },
             {
                 path: "/",
                 element: <InitialPage />,

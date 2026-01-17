@@ -10,7 +10,7 @@ from src.services.paciente_service import (
     buscar_paciente_por_nome
 )
 from src.database.connection import get_db
-from src.middleware.auth_middleware import get_current_user
+from src.middleware.auth_middleware import get_current_user, get_current_workspace_validation
 from src.database.entities.users_entity import User
 
 router = APIRouter(prefix="/pacientes", tags=["Pacientes"])
@@ -20,6 +20,7 @@ router = APIRouter(prefix="/pacientes", tags=["Pacientes"])
 @router.post("/cadastrar", response_model=PacienteResponse)
 async def cadastrar(paciente: PacienteCreate, 
                     current_user: User = Depends(get_current_user),
+                    workspace_id: str = Depends(get_current_workspace_validation),
                     db: Session = Depends(get_db)):
     """
     Cadastra um novo paciente no banco de dados.
@@ -35,7 +36,7 @@ async def cadastrar(paciente: PacienteCreate,
         HTTPException: Se ocorrer erro interno durante a criação.
     """
     try:
-        return await cadastrar_paciente(paciente,current_user.id, db)
+        return await cadastrar_paciente(paciente,current_user.id, workspace_id, db)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -44,6 +45,7 @@ async def cadastrar(paciente: PacienteCreate,
 @router.delete("/{id}")
 async def deletar(id: int,
                   current_user: User = Depends(get_current_user),
+                  workspace_id: str = Depends(get_current_workspace_validation),
                   db: Session = Depends(get_db)):
     """
     Remove um paciente do banco de dados.
@@ -58,7 +60,7 @@ async def deletar(id: int,
     Raises:
         HTTPException: Caso o paciente não exista.
     """
-    sucesso = await deletar_paciente(id, current_user.id, db)
+    sucesso = await deletar_paciente(id, workspace_id, db)
     if not sucesso:
         raise HTTPException(status_code=404, detail="Paciente não encontrado")
     return {"message": "Paciente excluído com sucesso"}
@@ -68,6 +70,7 @@ async def deletar(id: int,
 @router.get("/", response_model=list[PacienteResponse])
 async def listar(
     current_user: User = Depends(get_current_user),
+    workspace_id: str = Depends(get_current_workspace_validation),
     db: Session = Depends(get_db)):
     """
     Lista todos os pacientes cadastrados.
@@ -78,12 +81,12 @@ async def listar(
     Returns:
         list[PacienteResponse]: Lista de pacientes.
     """
-    return await listar_pacientes(current_user.id, db)
+    return await listar_pacientes(workspace_id, db)
 
 
 # READ - buscar por id
 @router.get("/{id}", response_model=PacienteResponse)
-async def buscar(id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def buscar(id: int, current_user: User = Depends(get_current_user), workspace_id: str = Depends(get_current_workspace_validation), db: Session = Depends(get_db)):
     """
     Busca um paciente pelo seu ID.
 
@@ -97,7 +100,7 @@ async def buscar(id: int, current_user: User = Depends(get_current_user), db: Se
     Raises:
         HTTPException: Caso o paciente não exista.
     """
-    paciente = await buscar_paciente(id, current_user.id, db)
+    paciente = await buscar_paciente(id, workspace_id, db)
     if not paciente:
         raise HTTPException(status_code=404, detail="Paciente não encontrado")
     return paciente
@@ -107,6 +110,7 @@ async def buscar(id: int, current_user: User = Depends(get_current_user), db: Se
 @router.put("/{id}", response_model=PacienteResponse)
 async def atualizar(id: int, paciente: PacienteCreate, 
                     current_user: User = Depends(get_current_user),
+                    workspace_id: str = Depends(get_current_workspace_validation),
                     db: Session = Depends(get_db)):
     """
     Atualiza os dados de um paciente existente.
@@ -122,7 +126,7 @@ async def atualizar(id: int, paciente: PacienteCreate,
     Raises:
         HTTPException: Caso o paciente não exista.
     """
-    atualizado = await atualizar_paciente(id, paciente,current_user.id, db)
+    atualizado = await atualizar_paciente(id, paciente, workspace_id, db)
     if not atualizado:
         raise HTTPException(status_code=404, detail="Paciente não encontrado")
     return atualizado
@@ -133,6 +137,7 @@ async def atualizar(id: int, paciente: PacienteCreate,
 async def buscar_por_nome(
     nome: str | None = Query(None, description="Nome (ou parte do nome) do paciente"),
     current_user: User = Depends(get_current_user),
+    workspace_id: str = Depends(get_current_workspace_validation),
     db: Session = Depends(get_db),
 ):
     """
@@ -155,7 +160,7 @@ async def buscar_por_nome(
     if not nome:
         raise HTTPException(status_code=400, detail="Informe nome para busca")
 
-    pacientes = await buscar_paciente_por_nome(nome, current_user.id, db)
+    pacientes = await buscar_paciente_por_nome(nome, workspace_id, db)
     if not pacientes:
         raise HTTPException(status_code=404, detail="Nenhum paciente encontrado")
     return pacientes

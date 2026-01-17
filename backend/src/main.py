@@ -11,6 +11,7 @@ from src.routes import (
     food_plan_route,
     recordatory_route,
     user_route,
+    workspace_route
 )
 
 from src.database.connection import Base, engine
@@ -40,3 +41,4 @@ app.include_router(child_anamnese_route.router)
 app.include_router(return_anamnese_route.router)
 app.include_router(food_plan_route.router)
 app.include_router(recordatory_route.router)
+app.include_router(workspace_route.router)

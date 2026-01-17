@@ -4,12 +4,14 @@ from src.models.child_anamnese_model import ChildAnamneseCreate
 
 
 # CREATE
-async def cadastrar_child_anamnese(anamnese: ChildAnamneseCreate, user_id: str, db: Session):
+async def cadastrar_child_anamnese(anamnese: ChildAnamneseCreate, user_id: str, workspace_id: str, db: Session):
     """
     Cadastra uma nova anamnese infantil no banco de dados.
 
     Args:
         anamnese (ChildAnamneseCreate): Dados enviados pelo cliente (Pydantic Model).
+        user_id (str): ID do usuário que está criando a anamnese.
+        workspace_id (str): ID do workspace onde a anamnese será salva.
         db (Session): Sessão ativa do banco de dados.
 
     Returns:
@@ -17,7 +19,8 @@ async def cadastrar_child_anamnese(anamnese: ChildAnamneseCreate, user_id: str, 
     """
     nova_anamnese = ChildAnamnese(
         **anamnese.model_dump(exclude_unset=True),
-        user_id=user_id
+        user_id=user_id,
+        workspace_id=workspace_id
     )
     db.add(nova_anamnese)
     db.commit()
@@ -26,7 +29,7 @@ async def cadastrar_child_anamnese(anamnese: ChildAnamneseCreate, user_id: str, 
 
 
 # READ - listar todos
-async def listar_child_anamneses(user_id: str, db: Session):
+async def listar_child_anamneses(workspace_id: str, db: Session):
     """
     Lista todas as anamneses infantis cadastradas.
 
@@ -36,11 +39,11 @@ async def listar_child_anamneses(user_id: str, db: Session):
     Returns:
         list[ChildAnamnese]: Lista completa de registros.
     """
-    return db.query(ChildAnamnese).filter(ChildAnamnese.user_id == user_id).all()
+    return db.query(ChildAnamnese).filter(ChildAnamnese.workspace_id == workspace_id).all()
 
 
 # READ - buscar por ID
-async def buscar_child_anamnese(id: int, user_id: str, db: Session):
+async def buscar_child_anamnese(id: int, workspace_id: str, db: Session):
     """
     Busca uma anamnese infantil específica pelo ID.
 
@@ -51,12 +54,12 @@ async def buscar_child_anamnese(id: int, user_id: str, db: Session):
     Returns:
         ChildAnamnese | None: Registro encontrado ou None se não existir.
     """
-    anamnese = db.query(ChildAnamnese).filter(ChildAnamnese.id == id, ChildAnamnese.user_id == user_id).first()
+    anamnese = db.query(ChildAnamnese).filter(ChildAnamnese.id == id, ChildAnamnese.workspace_id == workspace_id).first()
     return anamnese
 
 
 # UPDATE
-async def atualizar_child_anamnese(id: int, dados: ChildAnamneseCreate, user_id: str, db: Session):
+async def atualizar_child_anamnese(id: int, dados: ChildAnamneseCreate, workspace_id: str, db: Session):
     """
     Atualiza uma anamnese infantil existente com os dados fornecidos.
 
@@ -70,7 +73,7 @@ async def atualizar_child_anamnese(id: int, dados: ChildAnamneseCreate, user_id:
     Returns:
         ChildAnamnese | None: Registro atualizado ou None se não encontrado.
     """
-    anamnese = db.query(ChildAnamnese).filter(ChildAnamnese.id == id, ChildAnamnese.user_id == user_id).first()
+    anamnese = db.query(ChildAnamnese).filter(ChildAnamnese.id == id, ChildAnamnese.workspace_id == workspace_id).first()
 
     if not anamnese:
         return None
@@ -84,7 +87,7 @@ async def atualizar_child_anamnese(id: int, dados: ChildAnamneseCreate, user_id:
 
 
 # DELETE
-async def deletar_child_anamnese(id: int, user_id: str, db: Session):
+async def deletar_child_anamnese(id: int, workspace_id: str, db: Session):
     """
     Deleta uma anamnese infantil do banco de dados.
 
@@ -95,7 +98,7 @@ async def deletar_child_anamnese(id: int, user_id: str, db: Session):
     Returns:
         bool: True se o registro foi deletado, False se não existir.
     """
-    anamnese = db.query(ChildAnamnese).filter(ChildAnamnese.id == id, ChildAnamnese.user_id == user_id).first()
+    anamnese = db.query(ChildAnamnese).filter(ChildAnamnese.id == id, ChildAnamnese.workspace_id == workspace_id).first()
     if anamnese:
         db.delete(anamnese)
         db.commit()
@@ -104,7 +107,7 @@ async def deletar_child_anamnese(id: int, user_id: str, db: Session):
 
 
 # READ - buscar por paciente_id
-async def buscar_child_anamneses_por_paciente(paciente_id: int, user_id: str, db: Session):
+async def buscar_child_anamneses_por_paciente(paciente_id: int, workspace_id: str, db: Session):
     """
     Lista todas as anamneses infantis de um paciente específico.
 
@@ -117,7 +120,7 @@ async def buscar_child_anamneses_por_paciente(paciente_id: int, user_id: str, db
     """
     anamneses = (
         db.query(ChildAnamnese)
-        .filter(ChildAnamnese.paciente_id == paciente_id, ChildAnamnese.user_id == user_id)
+        .filter(ChildAnamnese.paciente_id == paciente_id, ChildAnamnese.workspace_id == workspace_id)
         .all()
     )
     return anamneses

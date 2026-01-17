@@ -14,7 +14,7 @@ from src.services.food_plan_service import (
 )
 from src.database.connection import get_db
 from src.utils.food_plan_pdf import gerar_pdf_food_plan
-from src.middleware.auth_middleware import get_current_user
+from src.middleware.auth_middleware import get_current_user, get_current_workspace_validation
 from src.database.entities.users_entity import User
 
 router = APIRouter(prefix="/food-plans", tags=["FoodPlans"])
@@ -22,7 +22,7 @@ router = APIRouter(prefix="/food-plans", tags=["FoodPlans"])
 
 # CREATE
 @router.post("/cadastrar", response_model=FoodPlanResponse)
-async def cadastrar(plan: FoodPlanCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def cadastrar(plan: FoodPlanCreate, current_user: User = Depends(get_current_user), workspace_id: str = Depends(get_current_workspace_validation), db: Session = Depends(get_db)):
     """
     Cadastra um novo plano alimentar.
 
@@ -37,14 +37,14 @@ async def cadastrar(plan: FoodPlanCreate, current_user: User = Depends(get_curre
         HTTPException: Se ocorrer erro interno ao salvar no banco.
     """
     try:
-        return await cadastrar_food_plan(plan, current_user.id, db)
+        return await cadastrar_food_plan(plan, current_user.id, workspace_id, db)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 # READ - listar todos
 @router.get("/", response_model=list[FoodPlanResponse])
-async def listar(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def listar(current_user: User = Depends(get_current_user), workspace_id: str = Depends(get_current_workspace_validation), db: Session = Depends(get_db)):
     """
     Lista todos os planos alimentares cadastrados.
 
@@ -54,12 +54,12 @@ async def listar(current_user: User = Depends(get_current_user), db: Session = D
     Returns:
         list[FoodPlanResponse]: Lista completa de planos.
     """
-    return await listar_food_plans(current_user.id, db)
+    return await listar_food_plans(workspace_id, db)
 
 
 # READ - buscar por id
 @router.get("/{id}", response_model=FoodPlanResponse)
-async def buscar(id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def buscar(id: int, current_user: User = Depends(get_current_user), workspace_id: str = Depends(get_current_workspace_validation), db: Session = Depends(get_db)):
     """
     Busca um plano alimentar pelo ID.
 
@@ -73,7 +73,7 @@ async def buscar(id: int, current_user: User = Depends(get_current_user), db: Se
     Raises:
         HTTPException: Caso o ID não exista.
     """
-    plano = await buscar_food_plan(id, current_user.id, db)
+    plano = await buscar_food_plan(id, workspace_id, db)
     if not plano:
         raise HTTPException(status_code=404, detail="Plano alimentar não encontrado")
     return plano
@@ -81,7 +81,7 @@ async def buscar(id: int, current_user: User = Depends(get_current_user), db: Se
 
 # READ - buscar por paciente_id
 @router.get("/paciente/{paciente_id}", response_model=list[FoodPlanResponse])
-async def buscar_por_paciente(paciente_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def buscar_por_paciente(paciente_id: int, current_user: User = Depends(get_current_user), workspace_id: str = Depends(get_current_workspace_validation), db: Session = Depends(get_db)):
     """
     Lista todos os planos alimentares associados a um paciente específico.
 
@@ -92,12 +92,12 @@ async def buscar_por_paciente(paciente_id: int, current_user: User = Depends(get
     Returns:
         list[FoodPlanResponse]: Planos do paciente.
     """
-    return await buscar_food_plans_por_paciente(paciente_id, current_user.id, db)
+    return await buscar_food_plans_por_paciente(paciente_id, workspace_id, db)
 
 
 # UPDATE
 @router.put("/{id}", response_model=FoodPlanResponse)
-async def atualizar(id: int, plano: FoodPlanCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def atualizar(id: int, plano: FoodPlanCreate, current_user: User = Depends(get_current_user), workspace_id: str = Depends(get_current_workspace_validation), db: Session = Depends(get_db)):
     """
     Atualiza um plano alimentar existente.
 
@@ -112,7 +112,7 @@ async def atualizar(id: int, plano: FoodPlanCreate, current_user: User = Depends
     Raises:
         HTTPException: Caso o plano não seja encontrado.
     """
-    atualizado = await atualizar_food_plan(id, plano, current_user.id, db)
+    atualizado = await atualizar_food_plan(id, plano, workspace_id, db)
     if not atualizado:
         raise HTTPException(status_code=404, detail="Plano alimentar não encontrado")
     return atualizado
@@ -120,7 +120,7 @@ async def atualizar(id: int, plano: FoodPlanCreate, current_user: User = Depends
 
 # DELETE
 @router.delete("/{id}")
-async def deletar(id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def deletar(id: int, current_user: User = Depends(get_current_user), workspace_id: str = Depends(get_current_workspace_validation), db: Session = Depends(get_db)):
     """
     Remove um plano alimentar do banco de dados.
 
@@ -134,7 +134,7 @@ async def deletar(id: int, current_user: User = Depends(get_current_user), db: S
     Raises:
         HTTPException: Caso o plano não exista.
     """
-    sucesso = await deletar_food_plan(id, current_user.id, db)
+    sucesso = await deletar_food_plan(id, workspace_id, db)
     if not sucesso:
         raise HTTPException(status_code=404, detail="Plano alimentar não encontrado")
     return {"message": "Plano alimentar excluído com sucesso"}
@@ -142,7 +142,7 @@ async def deletar(id: int, current_user: User = Depends(get_current_user), db: S
 
 # GERAR PDF
 @router.get("/{id}/pdf")
-async def gerar_pdf(id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def gerar_pdf(id: int, current_user: User = Depends(get_current_user), workspace_id: str = Depends(get_current_workspace_validation), db: Session = Depends(get_db)):
     """
     Gera e retorna o PDF de um plano alimentar.
 
@@ -159,12 +159,12 @@ async def gerar_pdf(id: int, current_user: User = Depends(get_current_user), db:
             - Se o paciente não existir.
     """
     # Buscar plano
-    plano = await buscar_food_plan(id, current_user.id, db)
+    plano = await buscar_food_plan(id, workspace_id, db)
     if not plano:
         raise HTTPException(status_code=404, detail="Plano alimentar não encontrado")
 
     # Buscar paciente para obter nome
-    paciente = db.query(Paciente).filter(Paciente.id == plano.paciente_id, Paciente.user_id == current_user.id).first()
+    paciente = db.query(Paciente).filter(Paciente.id == plano.paciente_id, Paciente.workspace_id == workspace_id).first()
     if not paciente:
         raise HTTPException(status_code=404, detail="Paciente não encontrado")
 

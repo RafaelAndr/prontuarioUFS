@@ -4,20 +4,31 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../providers/authProvider.jsx";
 
 const Header = () => {
-    const { setToken } = useAuth();
+    const { setToken, setWorkspaceId, workspaceName } = useAuth();
     const navigate = useNavigate();
 
     const handleLogout = () => {
         setToken(null);
+        setWorkspaceId(null);
         navigate("/login", { replace: true });
+    };
+
+    const handleSwitchWorkspace = () => {
+        setWorkspaceId(null); 
     };
 
     return (
         <Navbar bg="primary" variant="dark" className="shadow-sm">
             <Container fluid className="px-4">
-                <Navbar.Brand href="/" className="fw-bold">
+                <Navbar.Brand href="/" className="fw-bold d-flex align-items-center">
                     <i className="bi bi-hospital me-2"></i>
-                    Prontuário UFS
+                    <span>Prontuário UFS</span>
+                    {workspaceName && (
+                        <>
+                            <span className="mx-2 opacity-50">|</span>
+                            <span className="fw-light fs-6 opacity-75">{workspaceName}</span>
+                        </>
+                    )}
                 </Navbar.Brand>
                 
                 <Dropdown align="end">
@@ -33,6 +44,15 @@ const Header = () => {
                     </Dropdown.Toggle>
 
                     <Dropdown.Menu>
+                        <Dropdown.Item onClick={() => navigate("/configuracoes-clinica")}>
+                            <i className="bi bi-gear me-2"></i>
+                            Configurações da Clínica
+                        </Dropdown.Item>
+                        <Dropdown.Item onClick={handleSwitchWorkspace}>
+                            <i className="bi bi-arrow-left-right me-2"></i>
+                            Trocar Clínica
+                        </Dropdown.Item>
+                        <Dropdown.Divider />
                         <Dropdown.Item onClick={handleLogout}>
                             <i className="bi bi-box-arrow-right me-2"></i>
                             Sair
