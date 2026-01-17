@@ -31,6 +31,19 @@ const WorkspaceSettings = () => {
     const [newName, setNewName] = useState("");
     const [nameLoading, setNameLoading] = useState(false);
 
+    // Modal copiar código
+    const [showCopySuccessModal, setShowCopySuccessModal] = useState(false);
+    const [copiedCode, setCopiedCode] = useState("");
+
+    // Modal excluir convite
+    const [showDeleteInviteModal, setShowDeleteInviteModal] = useState(false);
+    const [inviteToDelete, setInviteToDelete] = useState(null);
+
+    // Modal remover membro
+    const [showRemoveMemberModal, setShowRemoveMemberModal] = useState(false);
+    const [memberToRemove, setMemberToRemove] = useState(null);
+
+
     useEffect(() => {
         if (workspaceId) {
             fetchData();
@@ -104,32 +117,47 @@ const WorkspaceSettings = () => {
         }
     };
 
-    const handleDeleteInvite = async (inviteId) => {
-        if (!window.confirm("Deseja realmente excluir este código de convite?")) return;
-        
+    const handleDeleteInvite = (inviteId) => {
+        setInviteToDelete(inviteId);
+        setShowDeleteInviteModal(true);
+    };
+
+    const confirmDeleteInvite = async () => {
         try {
-            await api.delete(`/workspaces/${workspaceId}/invites/${inviteId}`);
-            setInvites(invites.filter(i => i.id !== inviteId));
+            await api.delete(`/workspaces/${workspaceId}/invites/${inviteToDelete}`);
+            setInvites(invites.filter(i => i.id !== inviteToDelete));
         } catch (err) {
             setError("Erro ao excluir convite.");
+        } finally {
+            setShowDeleteInviteModal(false);
+            setInviteToDelete(null);
         }
     };
 
-    const handleRemoveMember = async (userId) => {
-        if (!window.confirm("Tem certeza que deseja remover este membro da clínica?")) return;
+    const handleRemoveMember = (userId) => {
+        const member = members.find(m => m.user_id === userId);
+        setMemberToRemove(member);
+        setShowRemoveMemberModal(true);
+    };
 
+    const confirmRemoveMember = async () => {
         try {
-            await api.delete(`/workspaces/${workspaceId}/members/${userId}`);
-            setMembers(members.filter(m => m.user_id !== userId));
+            await api.delete(`/workspaces/${workspaceId}/members/${memberToRemove.user_id}`);
+            setMembers(members.filter(m => m.user_id !== memberToRemove.user_id));
         } catch (err) {
-            alert(err.response?.data?.detail || "Erro ao remover membro.");
+            setError(err.response?.data?.detail || "Erro ao remover membro.");
+        } finally {
+            setShowRemoveMemberModal(false);
+            setMemberToRemove(null);
         }
     };
 
     const copyToClipboard = (code) => {
         navigator.clipboard.writeText(code);
-        alert(`Código ${code} copiado!`);
+        setCopiedCode(code);
+        setShowCopySuccessModal(true);
     };
+
 
     if (loading) {
         return (
@@ -163,8 +191,7 @@ const WorkspaceSettings = () => {
                     <i className="bi bi-arrow-left fs-4"></i>
                 </Button>
                 <div className="flex-grow-1">
-                    <h2 className="mb-0 text-primary fw-bold d-flex align-items-center">
-                        <i className="bi bi-gear-fill me-2"></i>
+                    <h2 className="mb-0 text-secondary fw-bold d-flex align-items-center">
                         Configurações da Clínica
                     </h2>
                 </div>
@@ -353,6 +380,103 @@ const WorkspaceSettings = () => {
                     </Modal.Footer>
                 </Form>
             </Modal>
+            {showCopySuccessModal && (
+                <div className="modal show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+                    <div className="modal-dialog modal-dialog-centered">
+                    <div className="modal-content border-0 shadow-lg">
+                        <div className="modal-body text-center p-5">
+
+                        <div className="mb-4">
+                            <div
+                            className="rounded-circle bg-success d-inline-flex align-items-center justify-content-center"
+                            style={{ width: "80px", height: "80px" }}
+                            >
+                            <i className="bi bi-clipboard-check fs-1 text-white"></i>
+                            </div>
+                        </div>
+
+                        <h4 className="text-success fw-bold mb-3">Código Copiado!</h4>
+                        <p className="text-muted mb-4">
+                            O código <strong>{copiedCode}</strong> foi copiado com sucesso.
+                        </p>
+
+                        <Button variant="primary" onClick={() => setShowCopySuccessModal(false)}>
+                            Fechar
+                        </Button>
+
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                )}
+            {showDeleteInviteModal && (
+                <div className="modal show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+                    <div className="modal-dialog modal-dialog-centered">
+                    <div className="modal-content border-0 shadow-lg">
+                        <div className="modal-body text-center p-5">
+
+                        <div className="mb-4">
+                            <div
+                            className="rounded-circle bg-danger d-inline-flex align-items-center justify-content-center"
+                            style={{ width: "80px", height: "80px" }}
+                            >
+                            <i className="bi bi-trash fs-1 text-white"></i>
+                            </div>
+                        </div>
+
+                        <h4 className="fw-bold mb-3 text-danger">Excluir Convite?</h4>
+                        <p className="text-muted mb-4">
+                            Esta ação é irreversível. O código será removido.
+                        </p>
+
+                        <div className="d-flex gap-3 justify-content-center">
+                            <Button variant="outline-secondary" onClick={() => setShowDeleteInviteModal(false)}>
+                            Cancelar
+                            </Button>
+                            <Button variant="danger" onClick={confirmDeleteInvite}>
+                            Excluir
+                            </Button>
+                        </div>
+
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                )}
+                {showRemoveMemberModal && (
+                    <div className="modal show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+                        <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content border-0 shadow-lg">
+                            <div className="modal-body text-center p-5">
+
+                            <div className="mb-4">
+                                <div
+                                className="rounded-circle bg-warning d-inline-flex align-items-center justify-content-center"
+                                style={{ width: "80px", height: "80px" }}
+                                >
+                                <i className="bi bi-person-x fs-1 text-white"></i>
+                                </div>
+                            </div>
+
+                            <h4 className="fw-bold mb-3">Remover Membro?</h4>
+                            <p className="text-muted mb-4">
+                                {memberToRemove?.user_name || memberToRemove?.user_email} perderá acesso à clínica.
+                            </p>
+
+                            <div className="d-flex gap-3 justify-content-center">
+                                <Button variant="outline-secondary" onClick={() => setShowRemoveMemberModal(false)}>
+                                Cancelar
+                                </Button>
+                                <Button variant="danger" onClick={confirmRemoveMember}>
+                                Remover
+                                </Button>
+                            </div>
+
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                    )}
         </Container>
     );
 };
