@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import CadastrateAnamneseButton from "../../components/CadastrateAnamneseButton/CadastrateAnamneseButton";
 import AnamneseList from "./AnamneseList";
 import { Modal, Button, Dropdown } from "react-bootstrap";
+import api from "../../services/api.js";
 
 const PatientePage = () => {
   const { id } = useParams();
@@ -67,14 +68,11 @@ const PatientePage = () => {
     navigate("/");
   };
 
-  const API_URL = import.meta.env.VITE_API_URL;
-
   useEffect(() => {
     const fetchPatiente = async () => {
       try {
-        const response = await fetch(`${API_URL}/pacientes/${id}`);
-        const data = await response.json();
-        setPaciente(data);
+        const response = await api.get(`/pacientes/${id}`);
+        setPaciente(response.data);
       } catch (error) {
         console.error("Erro ao buscar paciente:", error);
       }
@@ -124,17 +122,12 @@ const PatientePage = () => {
     setShowConfirm(false); 
 
     try {
-      const response = await fetch(
-        `${API_URL}/pacientes/${selectedId}`,
-        { method: "DELETE" },
-      );
-
-      if (!response.ok) throw new Error("Erro ao excluir paciente");
-
+      await api.delete(`/pacientes/${selectedId}`);
       setShowSuccess(true); 
     } catch (err) {
       console.error(err);
-      alert("Erro ao excluir paciente.");
+      const errorMsg = err.response?.data?.message || "Erro ao excluir paciente.";
+      alert(errorMsg);
     }
   };
 

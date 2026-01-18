@@ -15,4 +15,4 @@ class PacienteResponse(PacienteCreate):
     id: int  # vem do banco após salvar
 
     class Config:
-        orm_mode = True  # permite converter automaticamente objetos ORM → JSON
+        from_attributes = True  # permite converter automaticamente objetos ORM → JSON

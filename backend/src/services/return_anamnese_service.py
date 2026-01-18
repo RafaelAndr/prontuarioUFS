@@ -4,18 +4,20 @@ from src.models.return_anamnese_model import ReturnAnamneseCreate
 
 
 # CREATE
-async def cadastrar_return_anamnese(anamnese: ReturnAnamneseCreate, db: Session):
+async def cadastrar_return_anamnese(anamnese: ReturnAnamneseCreate, user_id: str, workspace_id: str, db: Session):
     """
     Cria uma nova ReturnAnamnese no banco de dados.
 
     Args:
         anamnese (ReturnAnamneseCreate): Dados enviados pelo cliente (Pydantic Model).
+        user_id (str): ID do usuário que está criando a anamnese.
+        workspace_id (str): ID do workspace onde a anamnese será salva.
         db (Session): Sessão do banco de dados.
 
     Returns:
         ReturnAnamnese: Objeto recém-criado com ID e demais campos atualizados.
     """
-    nova_anamnese = ReturnAnamnese(**anamnese.model_dump(exclude_unset=True))
+    nova_anamnese = ReturnAnamnese(**anamnese.model_dump(exclude_unset=True), user_id=user_id, workspace_id=workspace_id)
     db.add(nova_anamnese)
     db.commit()
     db.refresh(nova_anamnese)
@@ -23,7 +25,7 @@ async def cadastrar_return_anamnese(anamnese: ReturnAnamneseCreate, db: Session)
 
 
 # READ - listar todos
-async def listar_return_anamneses(db: Session):
+async def listar_return_anamneses(workspace_id: str, db: Session):
     """
     Retorna todas as ReturnAnamneses cadastradas.
 
@@ -33,11 +35,11 @@ async def listar_return_anamneses(db: Session):
     Returns:
         list[ReturnAnamnese]: Lista com todas as entradas cadastradas.
     """
-    return db.query(ReturnAnamnese).all()
+    return db.query(ReturnAnamnese).filter(ReturnAnamnese.workspace_id == workspace_id).all()
 
 
 # READ - buscar por ID
-async def buscar_return_anamnese(id: int, db: Session):
+async def buscar_return_anamnese(id: int, workspace_id: str, db: Session):
     """
     Busca uma ReturnAnamnese específica pelo ID.
 
@@ -48,12 +50,12 @@ async def buscar_return_anamnese(id: int, db: Session):
     Returns:
         ReturnAnamnese | None: Retorno encontrado ou None se não existir.
     """
-    anamnese = db.query(ReturnAnamnese).filter(ReturnAnamnese.id == id).first()
+    anamnese = db.query(ReturnAnamnese).filter(ReturnAnamnese.id == id, ReturnAnamnese.workspace_id == workspace_id).first()
     return anamnese
 
 
 # UPDATE
-async def atualizar_return_anamnese(id: int, dados: ReturnAnamneseCreate, db: Session):
+async def atualizar_return_anamnese(id: int, dados: ReturnAnamneseCreate, workspace_id: str, db: Session):
     """
     Atualiza uma ReturnAnamnese existente.
 
@@ -65,7 +67,7 @@ async def atualizar_return_anamnese(id: int, dados: ReturnAnamneseCreate, db: Se
     Returns:
         ReturnAnamnese | None: Objeto atualizado ou None se o ID não existir.
     """
-    anamnese = db.query(ReturnAnamnese).filter(ReturnAnamnese.id == id).first()
+    anamnese = db.query(ReturnAnamnese).filter(ReturnAnamnese.id == id, ReturnAnamnese.workspace_id == workspace_id).first()
     if not anamnese:
         return None
 
@@ -78,7 +80,7 @@ async def atualizar_return_anamnese(id: int, dados: ReturnAnamneseCreate, db: Se
 
 
 # DELETE
-async def deletar_return_anamnese(id: int, db: Session):
+async def deletar_return_anamnese(id: int, workspace_id: str, db: Session):
     """
     Deleta uma ReturnAnamnese do banco de dados.
 
@@ -89,7 +91,7 @@ async def deletar_return_anamnese(id: int, db: Session):
     Returns:
         bool: True se deletou com sucesso, False se o ID não existir.
     """
-    anamnese = db.query(ReturnAnamnese).filter(ReturnAnamnese.id == id).first()
+    anamnese = db.query(ReturnAnamnese).filter(ReturnAnamnese.id == id, ReturnAnamnese.workspace_id == workspace_id).first()
     if anamnese:
         db.delete(anamnese)
         db.commit()
@@ -98,7 +100,7 @@ async def deletar_return_anamnese(id: int, db: Session):
 
 
 # READ - buscar por paciente_id
-async def buscar_return_anamneses_por_paciente(paciente_id: int, db: Session):
+async def buscar_return_anamneses_por_paciente(paciente_id: int, workspace_id: str, db: Session):
     """
     Busca todas as ReturnAnamneses relacionadas a um paciente específico.
 
@@ -111,7 +113,7 @@ async def buscar_return_anamneses_por_paciente(paciente_id: int, db: Session):
     """
     anamneses = (
         db.query(ReturnAnamnese)
-        .filter(ReturnAnamnese.paciente_id == paciente_id)
+        .filter(ReturnAnamnese.paciente_id == paciente_id, ReturnAnamnese.workspace_id == workspace_id)
         .all()
     )
     return anamneses

@@ -10,6 +10,9 @@ import BioquimicaChild from "./components/BioquimicaChild";
 import HistoriaAlimentarChild from "./components/HistoriaAlimentarChild";
 import DiagnosticoConclusivoChild from "./components/DiagnosticoConclusivoChild";
 import DadosIniciaisChild from "./components/DadosIniciaisChild";
+import api from "../../services/api.js";
+import useFormPersistence from "../../hooks/useFormPersistence.js";
+import DraftModal from "../BaseAnamneseForm/components/DraftModal.jsx";
 
 function ChildAnamneseForm() {
   const { pacienteId, anamneseId } = useParams();
@@ -17,52 +20,50 @@ function ChildAnamneseForm() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showUpdateSuccessModal, setUpdateShowSuccessModal] = useState(false);
   const [formData, setFormData] = useState({});
+  const formKey = 'childAnamneseForm_' + pacienteId;
+  const { clearSaved } = useFormPersistence(formKey, formData, setFormData, 24, !anamneseId);
+  const [showDraftModal, setShowDraftModal] = useState(false);
 
   useEffect(() => {
     if (anamneseId) {
-      fetch(`${API_URL}/child-anamneses/${anamneseId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setFormData(data);
+      api.get(`/child-anamneses/${anamneseId}`)
+        .then((res) => {
+          setFormData(res.data);
         })
         .catch((err) => console.error("Erro ao carregar anamnese:", err));
     }
   }, [anamneseId]);
 
+  useEffect(() => {
+    const savedDraft = localStorage.getItem(formKey);
+    if (savedDraft && !anamneseId) {
+      setShowDraftModal(true);
+    }
+  }, [pacienteId, anamneseId]);
+
   const handleClick = () => {
     navigate(`/pagina-paciente/${pacienteId}`);
   };
 
-  const API_URL = import.meta.env.VITE_API_URL;
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const url = anamneseId
-      ? `${API_URL}/child-anamneses/${anamneseId}`
-      : `${API_URL}/child-anamneses/cadastrar`;
-
-    const method = anamneseId ? "PUT" : "POST";
+    const data = {
+      paciente_id: Number(pacienteId),
+      tipo_registro: "Anamnese Infantil",
+      ...formData,
+    };
 
     try {
-      const response = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          paciente_id: Number(pacienteId),
-          tipo_registro: "Anamnese Infantil",
-          ...formData,
-        }),
-      });
-
-      if (!response.ok) throw new Error("Erro ao salvar anamnese");
-
-      if (method === "PUT") {
-        setUpdateShowSuccessModal(true);
-        return;
-      }
-      setShowSuccessModal(true);
+      clearSaved();
       
+      if (anamneseId) {
+        await api.put(`/child-anamneses/${anamneseId}`, data);
+        setUpdateShowSuccessModal(true);
+      } else {
+        await api.post('/child-anamneses/cadastrar', data);
+        setShowSuccessModal(true);
+      }
     } catch (error) {
       console.error(error);
       alert("Erro ao salvar anamnese.");
@@ -79,6 +80,15 @@ function ChildAnamneseForm() {
     navigate(`/pagina-paciente/${pacienteId}`);
   };
 
+  const handleContinueDraft = () => {
+    setShowDraftModal(false);
+  };
+
+  const handleDiscardDraft = () => {
+    clearSaved();
+    setFormData({});
+    setShowDraftModal(false);
+  };
 
   return (
     <>
@@ -287,6 +297,12 @@ function ChildAnamneseForm() {
             </div>
           </div>
         </div>
+      )}
+      {showDraftModal && (
+        <DraftModal
+          onContinue={handleContinueDraft}
+          onDiscard={handleDiscardDraft}
+        />
       )}
     </>
   );

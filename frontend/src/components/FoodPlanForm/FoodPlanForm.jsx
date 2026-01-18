@@ -4,6 +4,9 @@ import { FaArrowLeft } from "react-icons/fa";
 
 import TableSchedule from "./components/TableSchedule.jsx";
 import DadosIniciaisPlano from "./components/DadosIniciaisPlano.jsx";
+import api from "../../services/api.js";
+import useFormPersistence from "../../hooks/useFormPersistence.js";
+import DraftModal from "../BaseAnamneseForm/components/DraftModal.jsx";
 
 function FoodPlanForm() {
   const { pacienteId, anamneseId } = useParams();
@@ -12,21 +15,28 @@ function FoodPlanForm() {
   const [showUpdateSuccessModal, setUpdateShowSuccessModal] = useState(false);
 
   const [formData, setFormData] = useState({});
-
-  const API_URL = import.meta.env.VITE_API_URL;
+  const formKey = 'foodPlanForm_' + pacienteId;
+  const { clearSaved } = useFormPersistence(formKey, formData, setFormData, 24, !anamneseId);
+  const [showDraftModal, setShowDraftModal] = useState(false);
 
   useEffect(() => {
     if (anamneseId) {
-      fetch(`${API_URL}/food-plans/${anamneseId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setFormData(data);
+      api.get(`/food-plans/${anamneseId}`)
+        .then((res) => {
+          setFormData(res.data);
         })
         .catch((err) =>
           console.error("Erro ao carregar plano alimentar:", err),
         );
     }
   }, [anamneseId]);
+
+  useEffect(() => {
+    const savedDraft = localStorage.getItem(formKey);
+    if (savedDraft && !anamneseId) {
+      setShowDraftModal(true);
+    }
+  }, [pacienteId, anamneseId]);
 
   const handleClick = () => {
     navigate(`/pagina-paciente/${pacienteId}`);
@@ -35,44 +45,22 @@ function FoodPlanForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const url = anamneseId
-      ? `${API_URL}/food-plans/${anamneseId}`
-      : `${API_URL}/food-plans/cadastrar`;
-
-    const method = anamneseId ? "PUT" : "POST";
+    const data = {
+      paciente_id: Number(pacienteId),
+      tipo_registro: "Plano Alimentar",
+      ...formData,
+    };
 
     try {
-      const response = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          paciente_id: Number(pacienteId),
-          tipo_registro: "Plano Alimentar",
-          ...formData,
-        }),
-      });
-
-      console.log("Status:", response.status);
-console.log("Resposta:", await response.clone().json().catch(() => null));
-
-
-        console.log("=== DEBUG ===");
-        console.log("URL:", url);
-        console.log("Method:", method);
-        console.log("Payload:", response);
-        console.log("pacienteId:", pacienteId);
-        console.log("anamneseId:", anamneseId);
-        console.log("formData:", formData);
-        console.log("============");
-
-      if (!response.ok) throw new Error("Erro ao salvar anamnese");
-
-      if (method === "PUT") {
+      clearSaved();
+      
+      if (anamneseId) {
+        await api.put(`/food-plans/${anamneseId}`, data);
         setUpdateShowSuccessModal(true);
-        return;
+      } else {
+        await api.post('/food-plans/cadastrar', data);
+        setShowSuccessModal(true);
       }
-      setShowSuccessModal(true);
-
     } catch (error) {
       console.error(error);
       alert("Erro ao salvar anamnese.");
@@ -87,6 +75,16 @@ console.log("Resposta:", await response.clone().json().catch(() => null));
   const handleCloseUpdateModal = () => {
     setUpdateShowSuccessModal(false);
     navigate(`/pagina-paciente/${pacienteId}`);
+  };
+
+  const handleContinueDraft = () => {
+    setShowDraftModal(false);
+  };
+
+  const handleDiscardDraft = () => {
+    clearSaved();
+    setFormData({});
+    setShowDraftModal(false);
   };
 
   return (
@@ -242,6 +240,12 @@ console.log("Resposta:", await response.clone().json().catch(() => null));
             </div>
           </div>
         </div>
+      )}
+      {showDraftModal && (
+        <DraftModal
+          onContinue={handleContinueDraft}
+          onDiscard={handleDiscardDraft}
+        />
       )}
     </>
   );

@@ -9,6 +9,7 @@ import InqueritoRetornoDetails from "./components/InqueritoRetornoDetails";
 import ExameFisicoDetails from "./components/ExameFisicoDetails";
 import AntropometricaReturnDetails from "./components/AntropometricaReturnDetails";
 import BioquimicoReturnDetails from "./components/BioquimicoReturnDetails";
+import api from "../../services/api.js";
 
 const ReturnAnamneseDetails = () => {
   const navigate = useNavigate();
@@ -18,8 +19,6 @@ const ReturnAnamneseDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const API_URL = import.meta.env.VITE_API_URL;
-
   const handleClick = () => {
     navigate(`/pagina-paciente/${anamnese.paciente_id}`);
   };
@@ -27,16 +26,11 @@ const ReturnAnamneseDetails = () => {
   useEffect(() => {
     const fetchAnamnese = async () => {
       try {
-        const response = await fetch(
-          `${API_URL}/return-anamneses/${id}`
-        );
-        if (!response.ok)
-          throw new Error("Erro ao buscar anamnese de retorno");
-
-        const data = await response.json();
-        setAnamnese(data);
+        const response = await api.get(`/return-anamneses/${id}`);
+        setAnamnese(response.data);
       } catch (err) {
-        setError(err.message);
+        const errorMsg = err.response?.data?.message || err.message || "Erro ao buscar anamnese de retorno";
+        setError(errorMsg);
       } finally {
         setLoading(false);
       }

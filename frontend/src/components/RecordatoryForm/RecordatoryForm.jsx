@@ -4,6 +4,9 @@ import { FaArrowLeft } from "react-icons/fa";
 
 import RecordatoryTable from "./components/RecordatoryTable.jsx";
 import ConsumoMensal from "./components/ConsumoMensal.jsx";
+import api from "../../services/api.js";
+import useFormPersistence from "../../hooks/useFormPersistence.js";
+import DraftModal from "../BaseAnamneseForm/components/DraftModal.jsx";
 
 function RecordatoryForm() {
   const { pacienteId, anamneseId } = useParams();
@@ -12,19 +15,26 @@ function RecordatoryForm() {
   const [showUpdateSuccessModal, setUpdateShowSuccessModal] = useState(false);
 
   const [formData, setFormData] = useState({ });
-
-  const API_URL = import.meta.env.VITE_API_URL;
+  const formKey = 'recordatoryForm_' + pacienteId;
+  const { clearSaved } = useFormPersistence(formKey, formData, setFormData, 24, !anamneseId);
+  const [showDraftModal, setShowDraftModal] = useState(false);
 
   useEffect(() => {
     if (anamneseId) {
-      fetch(`${API_URL}/recordatorys/${anamneseId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setFormData(data);
+      api.get(`/recordatorys/${anamneseId}`)
+        .then((res) => {
+          setFormData(res.data);
         })
         .catch((err) => console.error("Erro ao carregar anamnese:", err));
     }
   }, [anamneseId]);
+
+  useEffect(() => {
+    const savedDraft = localStorage.getItem(formKey);
+    if (savedDraft && !anamneseId) {
+      setShowDraftModal(true);
+    }
+  }, [pacienteId, anamneseId]);
 
   const handleClick = () => {
     navigate(`/pagina-paciente/${pacienteId}`);
@@ -33,31 +43,22 @@ function RecordatoryForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const url = anamneseId
-      ? `${API_URL}/recordatorys/${anamneseId}`
-      : `${API_URL}/recordatorys/cadastrar`;
-
-    const method = anamneseId ? "PUT" : "POST";
+    const data = {
+      paciente_id: Number(pacienteId),
+      tipo_registro: "Recordatório Alimentar",
+      ...formData,
+    };
 
     try {
-      const response = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          paciente_id: Number(pacienteId),
-          tipo_registro: "Recordatório Alimentar",
-          ...formData,
-        }),
-      });
-
-      if (!response.ok) throw new Error("Erro ao salvar anamnese");
-
-      if (method === "PUT") {
+      clearSaved();
+      
+      if (anamneseId) {
+        await api.put(`/recordatorys/${anamneseId}`, data);
         setUpdateShowSuccessModal(true);
-        return;
+      } else {
+        await api.post('/recordatorys/cadastrar', data);
+        setShowSuccessModal(true);
       }
-      setShowSuccessModal(true);
-
     } catch (error) {
       console.error(error);
       alert("Erro ao salvar anamnese.");
@@ -72,6 +73,16 @@ function RecordatoryForm() {
   const handleCloseUpdateModal = () => {
     setUpdateShowSuccessModal(false);
     navigate(`/pagina-paciente/${pacienteId}`);
+  };
+
+  const handleContinueDraft = () => {
+    setShowDraftModal(false);
+  };
+
+  const handleDiscardDraft = () => {
+    clearSaved();
+    setFormData({});
+    setShowDraftModal(false);
   };
 
   return (
@@ -217,6 +228,12 @@ function RecordatoryForm() {
             </div>
           </div>
         </div>
+      )}
+      {showDraftModal && (
+        <DraftModal
+          onContinue={handleContinueDraft}
+          onDiscard={handleDiscardDraft}
+        />
       )}
     </>
   );

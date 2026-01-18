@@ -3,10 +3,13 @@ import CadastratePatienteButton from "../../components/CadastratePatienteButton/
 
 const InitialPage = () => {
   return (
-    <div className="container mt-4 border-none rounded p-4" style={{ backgroundColor: "rgb(249,249,249)" }}>
-      <SearchPanel />
-      <CadastratePatienteButton />
-    </div>
+    <>
+      {/* <Header /> */}
+      <div className="container mt-4 border-none rounded p-4" style={{ backgroundColor: "rgb(249,249,249)" }}>
+        <SearchPanel />
+        <CadastratePatienteButton />
+      </div>
+    </>
   );
 };
 
