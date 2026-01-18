@@ -135,6 +135,7 @@ const AnamneseList = () => {
       const file = new Blob([response.data], { type: "application/pdf" });
       const fileURL = URL.createObjectURL(file);
       window.open(fileURL, "_blank");
+      setTimeout(() => URL.revokeObjectURL(fileURL), 60000);
     } catch (error) {
       console.error("Erro ao gerar PDF:", error);
       alert("Erro ao gerar PDF. Verifique se você tem permissão.");

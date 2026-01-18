@@ -163,14 +163,22 @@ const WorkspaceSelection = () => {
                                             className="d-flex justify-content-between align-items-center py-3 px-3 rounded mb-2 border shadow-none position-relative"
                                         >
                                             <div className="d-flex align-items-center">
-                                                <Button 
-                                                    variant="link" 
+                                                <span 
+                                                    role="button"
+                                                    tabIndex={0}
                                                     className="p-0 me-3 text-decoration-none"
+                                                    style={{ cursor: 'pointer' }}
                                                     onClick={(e) => handleSetDefault(e, ws.id)}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter' || e.key === ' ') {
+                                                            e.preventDefault();
+                                                            handleSetDefault(e, ws.id);
+                                                        }
+                                                    }}
                                                     title={defaultWorkspaceId === ws.id ? "Clínica Padrão" : "Definir como Padrão"}
                                                 >
                                                     <i className={`bi ${defaultWorkspaceId === ws.id ? 'bi-star-fill text-warning' : 'bi-star text-muted'} fs-5`}></i>
-                                                </Button>
+                                                </span>
                                                 <div>
                                                     <span className="fw-bold d-block text-dark">{ws.name}</span>
                                                     <div className="d-flex gap-2">
