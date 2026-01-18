@@ -21,7 +21,7 @@ function useFormPersistence(formKey, formData, setFormData, expirationHours = 24
         localStorage.removeItem(formKey);
       }
     }
-  }, []);
+  }, [formKey, setFormData, expirationHours, shouldPersist]);
 
   useEffect(() => {
     if (!shouldPersist) return;

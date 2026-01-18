@@ -14,7 +14,6 @@ const LoginPage = () => {
     const { setToken, setWorkspaceId } = useAuth();
     const navigate = useNavigate();
 
-    const API_URL = import.meta.env.VITE_API_URL;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
