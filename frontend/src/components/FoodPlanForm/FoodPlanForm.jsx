@@ -5,6 +5,8 @@ import { FaArrowLeft } from "react-icons/fa";
 import TableSchedule from "./components/TableSchedule.jsx";
 import DadosIniciaisPlano from "./components/DadosIniciaisPlano.jsx";
 import api from "../../services/api.js";
+import useFormPersistence from "../../hooks/useFormPersistence.js";
+import DraftModal from "../BaseAnamneseForm/components/DraftModal.jsx";
 
 function FoodPlanForm() {
   const { pacienteId, anamneseId } = useParams();
@@ -13,6 +15,9 @@ function FoodPlanForm() {
   const [showUpdateSuccessModal, setUpdateShowSuccessModal] = useState(false);
 
   const [formData, setFormData] = useState({});
+  const formKey = 'foodPlanForm_' + pacienteId;
+  const { clearSaved } = useFormPersistence(formKey, formData, setFormData, 24, !anamneseId);
+  const [showDraftModal, setShowDraftModal] = useState(false);
 
   useEffect(() => {
     if (anamneseId) {
@@ -25,6 +30,13 @@ function FoodPlanForm() {
         );
     }
   }, [anamneseId]);
+
+  useEffect(() => {
+    const savedDraft = localStorage.getItem(formKey);
+    if (savedDraft && !anamneseId) {
+      setShowDraftModal(true);
+    }
+  }, [pacienteId, anamneseId]);
 
   const handleClick = () => {
     navigate(`/pagina-paciente/${pacienteId}`);
@@ -40,6 +52,8 @@ function FoodPlanForm() {
     };
 
     try {
+      clearSaved();
+      
       if (anamneseId) {
         await api.put(`/food-plans/${anamneseId}`, data);
         setUpdateShowSuccessModal(true);
@@ -61,6 +75,16 @@ function FoodPlanForm() {
   const handleCloseUpdateModal = () => {
     setUpdateShowSuccessModal(false);
     navigate(`/pagina-paciente/${pacienteId}`);
+  };
+
+  const handleContinueDraft = () => {
+    setShowDraftModal(false);
+  };
+
+  const handleDiscardDraft = () => {
+    clearSaved();
+    setFormData({});
+    setShowDraftModal(false);
   };
 
   return (
@@ -216,6 +240,12 @@ function FoodPlanForm() {
             </div>
           </div>
         </div>
+      )}
+      {showDraftModal && (
+        <DraftModal
+          onContinue={handleContinueDraft}
+          onDiscard={handleDiscardDraft}
+        />
       )}
     </>
   );

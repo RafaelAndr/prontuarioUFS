@@ -79,7 +79,7 @@ const PatientePage = () => {
     };
 
     fetchPatiente();
-  }, [id]);
+  }, [API_URL, id]);
 
   if (!paciente) {
     return (

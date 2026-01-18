@@ -11,6 +11,8 @@ import HistoriaAlimentarChild from "./components/HistoriaAlimentarChild";
 import DiagnosticoConclusivoChild from "./components/DiagnosticoConclusivoChild";
 import DadosIniciaisChild from "./components/DadosIniciaisChild";
 import api from "../../services/api.js";
+import useFormPersistence from "../../hooks/useFormPersistence.js";
+import DraftModal from "../BaseAnamneseForm/components/DraftModal.jsx";
 
 function ChildAnamneseForm() {
   const { pacienteId, anamneseId } = useParams();
@@ -18,6 +20,9 @@ function ChildAnamneseForm() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showUpdateSuccessModal, setUpdateShowSuccessModal] = useState(false);
   const [formData, setFormData] = useState({});
+  const formKey = 'childAnamneseForm_' + pacienteId;
+  const { clearSaved } = useFormPersistence(formKey, formData, setFormData, 24, !anamneseId);
+  const [showDraftModal, setShowDraftModal] = useState(false);
 
   useEffect(() => {
     if (anamneseId) {
@@ -28,6 +33,13 @@ function ChildAnamneseForm() {
         .catch((err) => console.error("Erro ao carregar anamnese:", err));
     }
   }, [anamneseId]);
+
+  useEffect(() => {
+    const savedDraft = localStorage.getItem(formKey);
+    if (savedDraft && !anamneseId) {
+      setShowDraftModal(true);
+    }
+  }, [pacienteId, anamneseId]);
 
   const handleClick = () => {
     navigate(`/pagina-paciente/${pacienteId}`);
@@ -43,6 +55,8 @@ function ChildAnamneseForm() {
     };
 
     try {
+      clearSaved();
+      
       if (anamneseId) {
         await api.put(`/child-anamneses/${anamneseId}`, data);
         setUpdateShowSuccessModal(true);
@@ -66,6 +80,15 @@ function ChildAnamneseForm() {
     navigate(`/pagina-paciente/${pacienteId}`);
   };
 
+  const handleContinueDraft = () => {
+    setShowDraftModal(false);
+  };
+
+  const handleDiscardDraft = () => {
+    clearSaved();
+    setFormData({});
+    setShowDraftModal(false);
+  };
 
   return (
     <>
@@ -274,6 +297,12 @@ function ChildAnamneseForm() {
             </div>
           </div>
         </div>
+      )}
+      {showDraftModal && (
+        <DraftModal
+          onContinue={handleContinueDraft}
+          onDiscard={handleDiscardDraft}
+        />
       )}
     </>
   );

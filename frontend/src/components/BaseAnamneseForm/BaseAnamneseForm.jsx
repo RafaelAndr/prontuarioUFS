@@ -12,6 +12,8 @@ import HistoriaAlimentar from "./components/HistoriaAlimentar.jsx";
 import DadosIniciais from "./components/DadosIniciais.jsx";
 import DiagnosticoConclusivo from "./components/DiagnosticoConclusivo.jsx";
 import api from "../../services/api.js";
+import useFormPersistence from "../../hooks/useFormPersistence.js";
+import DraftModal from "./components/DraftModal.jsx";
 
 function BaseAnamneseForm() {
   const { pacienteId, anamneseId } = useParams();
@@ -20,7 +22,11 @@ function BaseAnamneseForm() {
   const [showUpdateSuccessModal, setUpdateShowSuccessModal] = useState(false);
 
   const [formData, setFormData] = useState({});
-  
+  const formKey = 'baseAnamneseForm_' + pacienteId;
+  const { clearSaved } = useFormPersistence(formKey, formData, setFormData, 24, !anamneseId);
+
+  const [showDraftModal, setShowDraftModal] = useState(false);
+
   useEffect(() => {
     if (anamneseId) {
       api.get(`/base-anamneses/${anamneseId}`)
@@ -30,6 +36,14 @@ function BaseAnamneseForm() {
         .catch((err) => console.error("Erro ao carregar anamnese:", err));
     }
   }, [anamneseId]);
+
+  useEffect(() => {
+    const savedDraft = localStorage.getItem(formKey);
+    if (savedDraft && !anamneseId) {
+      setShowDraftModal(true);
+    }
+  }, [pacienteId, anamneseId]);
+
 
   const handleClick = () => {
     navigate(`/pagina-paciente/${pacienteId}`);
@@ -45,6 +59,8 @@ function BaseAnamneseForm() {
     };
 
     try {
+      clearSaved();
+      
       if (anamneseId) {
         await api.put(`/base-anamneses/${anamneseId}`, data);
         setUpdateShowSuccessModal(true);
@@ -66,6 +82,16 @@ function BaseAnamneseForm() {
   const handleCloseUpdateModal = () => {
     setUpdateShowSuccessModal(false);
     navigate(`/pagina-paciente/${pacienteId}`);
+  };
+
+  const handleContinueDraft = () => {
+    setShowDraftModal(false);
+  };
+
+  const handleDiscardDraft = () => {
+    clearSaved();
+    setFormData({});
+    setShowDraftModal(false);
   };
 
   return (
@@ -287,6 +313,12 @@ function BaseAnamneseForm() {
             </div>
           </div>
         </div>
+      )}
+      {showDraftModal && (
+        <DraftModal
+          onContinue={handleContinueDraft}
+          onDiscard={handleDiscardDraft}
+        />
       )}
     </>
   );

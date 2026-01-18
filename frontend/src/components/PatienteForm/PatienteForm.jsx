@@ -98,13 +98,14 @@ function PatienteForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    
     if (!validateForm()) {
       return;
     }
 
     try {
       let data;
+      
       if (pacienteId) {
         const response = await api.put(`/pacientes/${pacienteId}`, formData);
         data = response.data;
