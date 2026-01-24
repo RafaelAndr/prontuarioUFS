@@ -16,6 +16,8 @@ from src.services.return_anamnese_service import (
 )
 
 from src.database.connection import get_db
+from src.middleware.auth_middleware import get_current_user, get_current_workspace_validation
+from src.database.entities.users_entity import User
 
 router = APIRouter(prefix="/return-anamneses", tags=["ReturnAnamneses"])
 
@@ -24,7 +26,7 @@ router = APIRouter(prefix="/return-anamneses", tags=["ReturnAnamneses"])
 # CREATE
 # ---------------------------------------------------------
 @router.post("/cadastrar", response_model=ReturnAnamneseResponse)
-async def cadastrar(anamnese: ReturnAnamneseCreate, db: Session = Depends(get_db)):
+async def cadastrar(anamnese: ReturnAnamneseCreate, current_user: User = Depends(get_current_user), workspace_id: str = Depends(get_current_workspace_validation), db: Session = Depends(get_db)):
     """
     Cadastra uma nova anamnese de retorno.
 
@@ -39,7 +41,7 @@ async def cadastrar(anamnese: ReturnAnamneseCreate, db: Session = Depends(get_db
         HTTPException: Caso ocorra erro interno ao salvar no banco.
     """
     try:
-        return await cadastrar_return_anamnese(anamnese, db)
+        return await cadastrar_return_anamnese(anamnese, current_user.id, workspace_id, db)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -48,7 +50,7 @@ async def cadastrar(anamnese: ReturnAnamneseCreate, db: Session = Depends(get_db
 # READ - listar todos
 # ---------------------------------------------------------
 @router.get("/", response_model=list[ReturnAnamneseResponse])
-async def listar(db: Session = Depends(get_db)):
+async def listar(current_user: User = Depends(get_current_user), workspace_id: str = Depends(get_current_workspace_validation), db: Session = Depends(get_db)):
     """
     Lista todas as anamneses de retorno cadastradas.
 
@@ -58,14 +60,14 @@ async def listar(db: Session = Depends(get_db)):
     Returns:
         list[ReturnAnamneseResponse]: Lista completa de registros.
     """
-    return await listar_return_anamneses(db)
+    return await listar_return_anamneses(workspace_id, db)
 
 
 # ---------------------------------------------------------
 # READ - buscar por id
 # ---------------------------------------------------------
 @router.get("/{id}", response_model=ReturnAnamneseResponse)
-async def buscar(id: int, db: Session = Depends(get_db)):
+async def buscar(id: int, current_user: User = Depends(get_current_user), workspace_id: str = Depends(get_current_workspace_validation), db: Session = Depends(get_db)):
     """
     Busca uma anamnese de retorno pelo ID.
 
@@ -79,7 +81,7 @@ async def buscar(id: int, db: Session = Depends(get_db)):
     Raises:
         HTTPException: Caso o registro não exista.
     """
-    anamnese = await buscar_return_anamnese(id, db)
+    anamnese = await buscar_return_anamnese(id, workspace_id, db)
     if not anamnese:
         raise HTTPException(status_code=404, detail="Anamnese não encontrada")
     return anamnese
@@ -89,7 +91,7 @@ async def buscar(id: int, db: Session = Depends(get_db)):
 # READ - buscar por paciente_id
 # ---------------------------------------------------------
 @router.get("/paciente/{paciente_id}", response_model=list[ReturnAnamneseResponse])
-async def buscar_por_paciente(paciente_id: int, db: Session = Depends(get_db)):
+async def buscar_por_paciente(paciente_id: int, current_user: User = Depends(get_current_user), workspace_id: str = Depends(get_current_workspace_validation), db: Session = Depends(get_db)):
     """
     Lista todas as anamneses de retorno associadas a um paciente específico.
 
@@ -100,14 +102,14 @@ async def buscar_por_paciente(paciente_id: int, db: Session = Depends(get_db)):
     Returns:
         list[ReturnAnamneseResponse]: Registros do paciente.
     """
-    return await buscar_return_anamneses_por_paciente(paciente_id, db)
+    return await buscar_return_anamneses_por_paciente(paciente_id, workspace_id, db)
 
 
 # ---------------------------------------------------------
 # UPDATE
 # ---------------------------------------------------------
 @router.put("/{id}", response_model=ReturnAnamneseResponse)
-async def atualizar(id: int, anamnese: ReturnAnamneseCreate, db: Session = Depends(get_db)):
+async def atualizar(id: int, anamnese: ReturnAnamneseCreate, current_user: User = Depends(get_current_user), workspace_id: str = Depends(get_current_workspace_validation), db: Session = Depends(get_db)):
     """
     Atualiza uma anamnese de retorno existente.
 
@@ -122,7 +124,7 @@ async def atualizar(id: int, anamnese: ReturnAnamneseCreate, db: Session = Depen
     Raises:
         HTTPException: Caso o registro não exista.
     """
-    atualizado = await atualizar_return_anamnese(id, anamnese, db)
+    atualizado = await atualizar_return_anamnese(id, anamnese, workspace_id, db)
     if not atualizado:
         raise HTTPException(status_code=404, detail="Anamnese não encontrada")
     return atualizado
@@ -132,7 +134,7 @@ async def atualizar(id: int, anamnese: ReturnAnamneseCreate, db: Session = Depen
 # DELETE
 # ---------------------------------------------------------
 @router.delete("/{id}")
-async def deletar(id: int, db: Session = Depends(get_db)):
+async def deletar(id: int, current_user: User = Depends(get_current_user), workspace_id: str = Depends(get_current_workspace_validation), db: Session = Depends(get_db)):
     """
     Remove uma anamnese de retorno do banco de dados.
 
@@ -146,7 +148,7 @@ async def deletar(id: int, db: Session = Depends(get_db)):
     Raises:
         HTTPException: Caso o registro não exista.
     """
-    sucesso = await deletar_return_anamnese(id, db)
+    sucesso = await deletar_return_anamnese(id, workspace_id, db)
     if not sucesso:
         raise HTTPException(status_code=404, detail="Anamnese não encontrada")
     return {"message": "Anamnese excluída com sucesso"}

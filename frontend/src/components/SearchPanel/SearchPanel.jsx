@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import SearchBar from "../SearchBar/SearchBar";
 import SearchResults from "../SearchResults/SearchResults";
+import api from "../../services/api.js";
 
 function SearchPanel() {
   const [results, setResults] = useState([]);
@@ -10,16 +11,11 @@ function SearchPanel() {
     fetchAllPacientes();
   }, []);
 
-  const API_URL = import.meta.env.VITE_API_URL;
-
   const fetchAllPacientes = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/pacientes`);
-      if (!response.ok) throw new Error(`Erro: ${response.status}`);
-
-      const data = await response.json();
-      setResults(data);
+      const response = await api.get('/pacientes');
+      setResults(response.data);
     } catch (error) {
       console.error("Erro ao buscar pacientes:", error);
       setResults([]);
@@ -43,15 +39,12 @@ function SearchPanel() {
         ? `cpf=${encodeURIComponent(cleaned)}`
         : `nome=${encodeURIComponent(query)}`;
 
-      const url = `${API_URL}/pacientes/buscar/?${param}`;
+      const url = `/pacientes/buscar/?${param}`;
 
       console.log("Buscando em:", url);
 
-      const response = await fetch(url);
-      if (!response.ok) throw new Error(`Erro: ${response.status}`);
-
-      const data = await response.json();
-      setResults(data);
+      const response = await api.get(url);
+      setResults(response.data);
     } catch (error) {
       console.error("Erro ao buscar pacientes:", error);
       setResults([]);

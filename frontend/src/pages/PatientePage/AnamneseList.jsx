@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Modal, Button, Dropdown } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
+import api from "../../services/api.js";
 
 const AnamneseList = () => {
   const navigate = useNavigate();
@@ -60,8 +61,6 @@ const AnamneseList = () => {
     </Modal>
   );
 
-  const API_URL = import.meta.env.VITE_API_URL;
-
   const detalhesRotas = {
     base: (id) => `/detalhes-anamnese/${id}`,
     child: (id) => `/detalhes-child-anamnese/${id}`,
@@ -87,11 +86,11 @@ const AnamneseList = () => {
   };
 
   const deleteEndpoints = {
-    base: (id) => `${API_URL}/base-anamneses/${id}`,
-    child: (id) => `${API_URL}/child-anamneses/${id}`,
-    retorno: (id) => `${API_URL}/return-anamneses/${id}`,
-    plano: (id) => `${API_URL}/food-plans/${id}`, 
-    recordatorio: (id) => `${API_URL}/recordatorys/${id}`,
+    base: (id) => `/base-anamneses/${id}`,
+    child: (id) => `/child-anamneses/${id}`,
+    retorno: (id) => `/return-anamneses/${id}`,
+    plano: (id) => `/food-plans/${id}`, 
+    recordatorio: (id) => `/recordatorys/${id}`,
   };
 
   const handleOpenConfirm = (item) => {
@@ -108,8 +107,7 @@ const AnamneseList = () => {
     if (!endpoint) return alert("Tipo não suportado para exclusão.");
 
     try {
-      const response = await fetch(endpoint, { method: "DELETE" });
-      if (!response.ok) throw new Error("Erro ao excluir");
+      await api.delete(endpoint);
 
       if (tipo === "base")
         setAnamnesesBase((prev) => prev.filter((a) => a.id !== registroId));
@@ -124,7 +122,23 @@ const AnamneseList = () => {
         
       setShowSuccess(true);
     } catch (err) {
-      alert("Erro ao excluir.");
+      const errorMsg = err.response?.data?.message || "Erro ao excluir.";
+      alert(errorMsg);
+    }
+  };
+
+  const handleGerarPdf = async (item) => {
+    try {
+      const response = await api.get(`/food-plans/${item.id}/pdf`, {
+        responseType: "blob",
+      });
+      const file = new Blob([response.data], { type: "application/pdf" });
+      const fileURL = URL.createObjectURL(file);
+      window.open(fileURL, "_blank");
+      setTimeout(() => URL.revokeObjectURL(fileURL), 60000);
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      alert("Erro ao gerar PDF. Verifique se você tem permissão.");
     }
   };
 
@@ -132,30 +146,22 @@ const AnamneseList = () => {
     const loadData = async () => {
       try {
         const [baseRes, childRes, returnRes, planRes, recordatoryRes] = await Promise.all([
-          fetch(`${API_URL}/base-anamneses/paciente/${id}`),
-          fetch(`${API_URL}/child-anamneses/paciente/${id}`),
-          fetch(`${API_URL}/return-anamneses/paciente/${id}`),
-          fetch(`${API_URL}/food-plans/paciente/${id}`),
-          fetch(`${API_URL}/recordatorys/paciente/${id}`),
+          api.get(`/base-anamneses/paciente/${id}`),
+          api.get(`/child-anamneses/paciente/${id}`),
+          api.get(`/return-anamneses/paciente/${id}`),
+          api.get(`/food-plans/paciente/${id}`),
+          api.get(`/recordatorys/paciente/${id}`),
         ]);
 
-        if (!baseRes.ok || !childRes.ok || !returnRes.ok || !planRes.ok || !recordatoryRes.ok)
-          throw new Error("Erro ao carregar dados");
-
-        const baseData = await baseRes.json();
-        const childData = await childRes.json();
-        const retornoData = await returnRes.json();
-        const planData = await planRes.json();
-        const recordatoryData = await recordatoryRes.json();
-
-        setAnamnesesBase(baseData.map((d) => ({ ...d, tipo: "base" })));
-        setAnamnesesChild(childData.map((d) => ({ ...d, tipo: "child" })));
-        setReturnAnamnese(retornoData.map((d) => ({ ...d, tipo: "retorno" })));
-        setFoodPlan(planData.map((d) => ({ ...d, tipo: "plano" })));
-        setRecordatory(recordatoryData.map((d) => ({ ...d, tipo: "recordatorio" })));
+        setAnamnesesBase(baseRes.data.map((d) => ({ ...d, tipo: "base" })));
+        setAnamnesesChild(childRes.data.map((d) => ({ ...d, tipo: "child" })));
+        setReturnAnamnese(returnRes.data.map((d) => ({ ...d, tipo: "retorno" })));
+        setFoodPlan(planRes.data.map((d) => ({ ...d, tipo: "plano" })));
+        setRecordatory(recordatoryRes.data.map((d) => ({ ...d, tipo: "recordatorio" })));
       } catch (err) {
         console.log(err);
-        setError(err.message);
+        const errorMsg = err.response?.data?.message || err.message || "Erro ao carregar dados";
+        setError(errorMsg);
       } finally {
         setLoading(false);
       }
@@ -277,11 +283,7 @@ const AnamneseList = () => {
 
                   {item.tipo === "plano" && (
                     <Dropdown.Item
-                      onClick={() =>
-                        window.open(
-                          `${API_URL}/food-plans/${item.id}/pdf`,
-                        )
-                      }
+                      onClick={() => handleGerarPdf(item)}
                     >
                       Gerar PDF
                     </Dropdown.Item>

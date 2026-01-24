@@ -18,6 +18,8 @@ class Recordatory(Base):
     id = Column(Integer, primary_key=True, index=True)
     paciente_id = Column(Integer, ForeignKey("pacientes.id"))
     tipo_registro = Column(String, nullable=False)
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    workspace_id = Column(String(36), ForeignKey("workspaces.id"), nullable=False)
 
     tipo_recordatorio = Column(SqlEnum(RecordatorioEnum), nullable=False)
 
@@ -53,4 +55,6 @@ class Recordatory(Base):
     temperos_prontos = Column(String, nullable=True)
 
     paciente = relationship("Paciente", back_populates="recordatory")
+    user = relationship("User", back_populates="recordatory")
+    workspace = relationship("Workspace", back_populates="recordatory")
 

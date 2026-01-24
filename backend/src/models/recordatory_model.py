@@ -47,4 +47,4 @@ class RecordatoryResponse(RecordatoryBase):
     id: int
 
     class Config:
-        orm_mode = True  # compatível com FastAPI + SQLAlchemy
+        from_attributes = True  # compatível com FastAPI + SQLAlchemy
