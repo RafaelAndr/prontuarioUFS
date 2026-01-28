@@ -2,7 +2,7 @@
 set -e  # Para se der erro
 
 echo "🔄 Aplicando migrations..."
-alembic upgrade head
+poetry run alembic upgrade head
 
 echo "🚀 Iniciando servidor..."
-uvicorn src.main:app --host 0.0.0.0 --port ${PORT:-8080}
+poetry run uvicorn src.main:app --host 0.0.0.0 --port ${PORT:-8080}
