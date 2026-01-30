@@ -53,6 +53,7 @@ class Recordatory(Base):
     margarina = Column(String, nullable=True)
     sal = Column(String, nullable=True)
     temperos_prontos = Column(String, nullable=True)
+    outros = Column(Text, nullable=True)
 
     paciente = relationship("Paciente", back_populates="recordatory")
     user = relationship("User", back_populates="recordatory")
