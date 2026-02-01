@@ -120,7 +120,9 @@ class BaseAnamneseCreate(BaseModel):
     vomitos: Optional[bool] = None
     flatulencia: Optional[bool] = None
     ritmo_intestinal: Optional[RitmoIntestinal] = None
+    escala_bristol: Optional[str] = None
     ritmo_urinario: Optional[RitmoUrinario] = None
+    nivel_hidratacao: Optional[str] = None
     pele: Optional[str] = None
     unhas: Optional[str] = None
     cabelo: Optional[str] = None
