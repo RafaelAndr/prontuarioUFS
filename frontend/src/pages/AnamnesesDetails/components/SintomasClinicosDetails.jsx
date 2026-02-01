@@ -136,10 +136,22 @@ const SintomasClinicosDetails = ({ anamnese }) => {
           </div>
           <div className="col-md-3">
             <div className="flex-grow-1">
+              <small className="text-muted d-block">Escala de Bristol:</small>
+              <span className="fw-medium">{anamnese.escala_bristol || "-"}</span>
+            </div>
+          </div>
+          <div className="col-md-3">
+            <div className="flex-grow-1">
               <small className="text-muted d-block">Ritmo urinário:</small>
               <span className="fw-medium">
                 {ritmoUrinarioLabels[anamnese.ritmo_urinario] || "-"}
               </span>
+            </div>
+          </div>
+          <div className="col-md-3">
+            <div className="flex-grow-1">
+              <small className="text-muted d-block">Nível de hidratação:</small>
+              <span className="fw-medium">{anamnese.nivel_hidratacao || "-"}</span>
             </div>
           </div>
           <div className="col-md-3">
