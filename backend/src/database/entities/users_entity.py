@@ -4,10 +4,11 @@ from sqlalchemy import (
     String, 
 )
 import uuid
+from src.database.entities.mixins import TimestampMixin
 from src.database.connection import Base
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
-class User(Base):
+class User(Base, TimestampMixin):
     __tablename__ = 'users'
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()), index=True)
