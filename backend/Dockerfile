@@ -18,6 +18,10 @@ RUN poetry install --no-root
 # Copiar o código do backend
 COPY . .
 
+# Tornar script executável
+RUN chmod +x start.sh
+
 EXPOSE 8080
 
-CMD ["poetry", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8080"]
+# Rodar migrations e depois iniciar servidor
+CMD ["poetry", "run", "bash", "start.sh"]
