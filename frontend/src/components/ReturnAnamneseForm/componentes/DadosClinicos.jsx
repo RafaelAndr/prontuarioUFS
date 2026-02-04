@@ -172,6 +172,21 @@ const DadosClinicos = ({ formData, setFormData }) => {
           />
         </div>
       </div>
+      
+      <label className="form-label text-muted small d-block">
+        Escala de Bristol:
+      </label>
+      <div className="d-flex gap-3 mb-4">
+        <input
+          type="text"
+          name="escala_bristol"
+          className="form-control form-control-sm"
+          style={{ width: "200px" }}
+          placeholder="Ex: Tipo 4"
+          value={formData.escala_bristol || ""}
+          onChange={handleChange}
+        />
+      </div>
 
       <label className="form-label text-muted small mb-2 d-block">
         Ritmo Urinário
@@ -254,6 +269,21 @@ const DadosClinicos = ({ formData, setFormData }) => {
             onChange={handleChange}
           />
         </div>
+      </div>
+
+      <label className="form-label text-muted small d-block">
+        Nível de Hidratação:
+      </label>
+      <div className="d-flex gap-3 mb-4">
+        <input
+          type="text"
+          name="nivel_hidratacao"
+          className="form-control form-control-sm"
+          style={{ width: "200px" }}
+          placeholder="Ex: 1"
+          value={formData.nivel_hidratacao || ""}
+          onChange={handleChange}
+        />
       </div>
 
       <div className="row g-3">

@@ -462,6 +462,21 @@ const SinaisSintomasClinicos = ({ formData, setFormData }) => {
         </div>
 
         <label className="form-label text-muted small mb-2 d-block">
+            Escala de Bristol:
+          </label>
+          <div className="d-flex flex-wrap gap-2 mb-3">
+            <input
+              type="text"
+              name="escala_bristol"
+              className="form-control"
+              style={{ width: "200px" }}
+              placeholder="Ex: Tipo 4"
+              value={formData.escala_bristol || ""}
+              onChange={handleChange}
+            />
+          </div>
+
+        <label className="form-label text-muted small mb-2 d-block">
           Ritmo Urinário
         </label>
 
@@ -529,6 +544,21 @@ const SinaisSintomasClinicos = ({ formData, setFormData }) => {
               Normal
             </label>
           </div>
+        </div>
+
+        <label className="form-label text-muted small mb-2 d-block">
+          Nível de Hidratação:
+        </label>
+        <div className="d-flex flex-wrap gap-2 mb-3">
+          <input
+            type="text"
+            name="nivel_hidratacao"
+            className="form-control"
+            style={{ width: "200px" }}
+            placeholder="Ex: 1"
+            value={formData.nivel_hidratacao || ""}
+            onChange={handleChange}
+          />
         </div>
 
         <div className="d-flex flex-wrap gap-4">
