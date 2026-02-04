@@ -269,6 +269,46 @@ const SocioEconomicosDetails = ({ anamnese }) => {
                   </span>
                 </div>
               )}
+
+              
+            </div>
+          </div>
+        </div>
+
+        <div className="row g-3 mb-4">
+          <div className="col-12">
+            <div className="bg-white rounded-3 p-3">
+              <h6 className="text-muted mb-3 border-bottom pb-2">Informações sobre o Sono</h6>
+              <div className="row g-3">
+                <div className="col-md-3">
+                  <small className="text-muted d-block">Horário que Dorme</small>
+                  <span className="fw-medium">{anamnese.horario_dorme || "-"}</span>
+                </div>
+                <div className="col-md-3">
+                  <small className="text-muted d-block">Horário que Acorda</small>
+                  <span className="fw-medium">{anamnese.horario_acorda || "-"}</span>
+                </div>
+                <div className="col-md-6">
+                  <div className="d-flex align-items-center">
+                    <span className="text-muted me-2">Qualidade do Sono:</span>
+                    <span
+                      className={`badge ${
+                        anamnese.sono === "bom" 
+                          ? "bg-success" 
+                          : anamnese.sono === "mediano" 
+                          ? "bg-warning" 
+                          : anamnese.sono === "ruim"
+                          ? "bg-danger"
+                          : "bg-secondary"
+                      }`}
+                    >
+                      {anamnese.sono 
+                        ? anamnese.sono.charAt(0).toUpperCase() + anamnese.sono.slice(1) 
+                        : "-"}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -20,7 +20,8 @@ from src.database.entities.enums import (
     MastigacaoEnum, 
     RitmoIntestinal, 
     RitmoUrinario,
-    ApetiteEnum 
+    ApetiteEnum,
+    SonoEnum 
 )
 
 class BaseAnamnese(Base):
@@ -69,6 +70,9 @@ class BaseAnamnese(Base):
     quanto_tabagismo = Column(String, nullable=True)
     ja_foi_tabagista = Column(Boolean, nullable=True)
     tempo_parado_tabagismo = Column(String, nullable=True)
+    horario_dorme = Column(String, nullable=True)
+    horario_acorda = Column(String, nullable=True)
+    sono = Column(SqlEnum(SonoEnum), nullable=True)
 
     #Dados de saúde
     objetivo_consulta = Column(Text, nullable=True)

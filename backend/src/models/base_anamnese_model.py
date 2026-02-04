@@ -8,7 +8,8 @@ from src.database.entities.enums import (
     MastigacaoEnum,
     RitmoIntestinal,
     RitmoUrinario,
-    ApetiteEnum
+    ApetiteEnum,
+    SonoEnum
 )
 
 # ==============================================================
@@ -58,6 +59,10 @@ class BaseAnamneseCreate(BaseModel):
     quanto_tabagismo: Optional[str] = None
     ja_foi_tabagista: Optional[bool] = None
     tempo_parado_tabagismo: Optional[str] = None
+    
+    horario_dorme: Optional[str] = None
+    horario_acorda: Optional[str] = None
+    sono: Optional[SonoEnum] = None
 
     # -------------------- Dados de Saúde --------------------
     objetivo_consulta: Optional[str] = None
