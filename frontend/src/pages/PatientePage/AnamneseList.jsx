@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Modal, Button, Dropdown } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../services/api.js";
+import { AnamneseFilter, useAnamneseFilter } from "../../components/AnamneseFilter";
 
 const AnamneseList = () => {
   const navigate = useNavigate();
@@ -19,6 +20,15 @@ const AnamneseList = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+
+  // Hook customizado para gerenciamento de filtros
+  const filterProps = useAnamneseFilter({
+    anamnesesBase,
+    anamnesesChild,
+    returnAnamnese,
+    foodPlan,
+    recordatory,
+  });
 
   const ModalExcluir = ({ show, handleClose, handleConfirm }) => (
     <Modal show={show} onHide={handleClose} centered>
@@ -179,27 +189,29 @@ const AnamneseList = () => {
   if (loading) return <p>Carregando...</p>;
   if (error) return <p>Erro: {error}</p>;
 
-  const todasAsAnamneses = [
-    ...anamnesesBase,
-    ...anamnesesChild,
-    ...returnAnamnese,
-    ...foodPlan,
-    ...recordatory,
-  ];
+  const { todasAsAnamneses, anamnesesOrdenadas } = filterProps;
 
   return (
     <div className="container mt-4">
-      {todasAsAnamneses.length > 0 && (
+      <AnamneseFilter {...filterProps} />
+
+      {anamnesesOrdenadas.length > 0 && (
         <p
           className="fw-semibold text-secondary"
           style={{ marginLeft: "10px" }}
         >
-          Registros encontrados
+          {anamnesesOrdenadas.length === todasAsAnamneses.length
+            ? `Registros encontrados (${todasAsAnamneses.length})`
+            : `Exibindo ${anamnesesOrdenadas.length} de ${todasAsAnamneses.length} registros`}
         </p>
       )}
 
-      {todasAsAnamneses.length === 0 ? (
-        <div className="text-muted fst-italic">Nenhum registro encontrado.</div>
+      {anamnesesOrdenadas.length === 0 ? (
+        <div className="text-muted fst-italic">
+          {todasAsAnamneses.length === 0
+            ? "Nenhum registro encontrado."
+            : "Nenhum registro corresponde aos filtros selecionados."}
+        </div>
       ) : (
         <div
           className="list-group border-0"
@@ -210,7 +222,7 @@ const AnamneseList = () => {
             paddingRight: "6px",
           }}
         >
-          {todasAsAnamneses.map((item) => (
+          {anamnesesOrdenadas.map((item) => (
             <div
               key={`${item.tipo}-${item.id}`}
               className="list-group-item border-0 shadow-sm mb-3 rounded-4 p-3 d-flex justify-content-between align-items-center"
