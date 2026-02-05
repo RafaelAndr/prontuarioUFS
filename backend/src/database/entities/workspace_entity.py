@@ -1,5 +1,6 @@
 from sqlalchemy import Column, String, ForeignKey, DateTime, Boolean, Enum
 from sqlalchemy.orm import relationship, Mapped, mapped_column
+from src.database.entities.mixins import TimestampMixin
 from src.database.connection import Base
 import uuid
 from datetime import datetime
@@ -10,12 +11,11 @@ class WorkspaceRole(str, enum.Enum):
     ADMIN = "ADMIN"
     MEMBER = "MEMBER"
 
-class Workspace(Base):
+class Workspace(Base, TimestampMixin):
     __tablename__ = 'workspaces'
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()), index=True)
     name: Mapped[str] = mapped_column(String, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relacionamentos
     members = relationship("WorkspaceMember", back_populates="workspace", cascade="all, delete-orphan")
@@ -30,7 +30,7 @@ class Workspace(Base):
     pacientes = relationship("Paciente", back_populates="workspace")
     
 
-class WorkspaceMember(Base):
+class WorkspaceMember(Base, TimestampMixin):
     __tablename__ = 'workspace_members'
 
     workspace_id: Mapped[str] = mapped_column(String(36), ForeignKey('workspaces.id'), primary_key=True)
@@ -46,7 +46,7 @@ class WorkspaceMember(Base):
     user = relationship("User", back_populates="workspaces")
     invite = relationship("WorkspaceInvite")
 
-class WorkspaceInvite(Base):
+class WorkspaceInvite(Base, TimestampMixin):
     __tablename__ = 'workspace_invites'
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -55,7 +55,6 @@ class WorkspaceInvite(Base):
     created_by_user_id: Mapped[str] = mapped_column(String(36), ForeignKey('users.id'), nullable=False)
     
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
 
     workspace = relationship("Workspace", back_populates="invites")
     created_by = relationship("User")
