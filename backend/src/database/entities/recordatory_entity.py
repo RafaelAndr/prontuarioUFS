@@ -7,12 +7,13 @@ from sqlalchemy import (
     Enum as SqlEnum
 )
 from sqlalchemy.orm import relationship
+from src.database.entities.mixins import TimestampMixin
 from src.database.connection import Base
 from src.database.entities.enums import (
     RecordatorioEnum
 )
 
-class Recordatory(Base):
+class Recordatory(Base, TimestampMixin):
     __tablename__ = 'recordatory'
 
     id = Column(Integer, primary_key=True, index=True)
@@ -53,6 +54,7 @@ class Recordatory(Base):
     margarina = Column(String, nullable=True)
     sal = Column(String, nullable=True)
     temperos_prontos = Column(String, nullable=True)
+    outros = Column(Text, nullable=True)
 
     paciente = relationship("Paciente", back_populates="recordatory")
     user = relationship("User", back_populates="recordatory")

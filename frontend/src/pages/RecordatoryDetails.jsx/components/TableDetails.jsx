@@ -233,6 +233,12 @@ const tableDetails = ({ anamnese }) => {
               <span className="fw-medium">{anamnese.temperos_prontos || "-"}</span>
             </div>
           </div>
+          <div className="col-md-3">
+            <div className="flex-grow-1">
+              <small className="text-muted d-block">Outros:</small>
+              <pre className="fw-medium">{anamnese.outros || "-"}</pre>
+            </div>
+          </div>
         </div>
       </Card.Body>
     </div>

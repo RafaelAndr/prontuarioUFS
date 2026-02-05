@@ -1,6 +1,13 @@
+import { useMemo } from "react";
+import { calcularTempoSono } from "../../../utils/timeUtils";
 import "./index.css"
 
 const DadosSocioEconomicos = ({ formData, setFormData }) => {
+
+  const tempoSono = useMemo(() => {
+    return calcularTempoSono(formData.horario_dorme, formData.horario_acorda);
+  }, [formData.horario_dorme, formData.horario_acorda]);
+
   const handleChange = (e) => {
     let { name, value, type, checked } = e.target;
 
@@ -703,8 +710,87 @@ const DadosSocioEconomicos = ({ formData, setFormData }) => {
                 onChange={handleChange}
               />
             </div>
+          )}       
+        </div>
+
+        <label className="form-label text-muted small">Sono</label>
+        <div className="d-flex flex-wrap gap-3 mb-3">
+          <div className="form-check d-flex align-items-center gap-2">
+            <input
+              className="form-check-input"
+              type="radio"
+              name="sono"
+              id="sono_bom"
+              value="bom"
+              checked={formData.sono === "bom"}
+              onChange={handleChange}
+              onClick={() => toggleBooleanField("sono", "bom")}
+            />
+            <label className="form-check-label" htmlFor="sono_bom">
+              Bom
+            </label>
+          </div>
+          <div className="form-check d-flex align-items-center gap-2">
+            <input
+              className="form-check-input"
+              type="radio"
+              name="sono"
+              id="sono_mediano"
+              value="mediano"
+              checked={formData.sono === "mediano"}
+              onChange={handleChange}
+              onClick={() => toggleBooleanField("sono", "mediano")}
+            />
+            <label className="form-check-label" htmlFor="sono_mediano">
+              Mediano
+            </label>
+          </div>
+          <div className="form-check d-flex align-items-center gap-2">
+            <input
+              className="form-check-input"
+              type="radio"
+              name="sono"
+              id="sono_ruim"
+              value="ruim"
+              checked={formData.sono === "ruim"}
+              onChange={handleChange}
+              onClick={() => toggleBooleanField("sono", "ruim")}
+            />
+            <label className="form-check-label" htmlFor="sono_ruim">
+              Ruim
+            </label>
+          </div>
+          <div className="d-flex align-items-center gap-2 ms-3">
+            <label className="text-muted small mb-0">Dorme:</label>
+            <input
+              type="time"
+              name="horario_dorme"
+              className="form-control form-control-sm"
+              style={{ width: "140px" }}
+              value={formData.horario_dorme || ""}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="d-flex align-items-center gap-2">
+            <label className="text-muted small mb-0">Acorda:</label>
+            <input
+              type="time"
+              name="horario_acorda"
+              className="form-control form-control-sm"
+              style={{ width: "140px" }}
+              value={formData.horario_acorda || ""}
+              onChange={handleChange}
+            />
+          </div>
+          {tempoSono && (
+            <div className="d-flex align-items-center gap-2 ms-2">
+              <span className="text-muted small">
+                Tempo: <strong>{tempoSono}</strong>
+              </span>
+            </div>
           )}
         </div>
+
       </div>
     </>
   );

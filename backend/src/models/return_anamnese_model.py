@@ -26,8 +26,10 @@ class ReturnAnamneseCreate(BaseModel):
     ritmo_intestinal: Optional[RitmoIntestinal] = None
     frequencia_ritmo_intestinal: Optional[str] = None
     consistencia_ritmo_intestinal: Optional[str] = None
+    escala_bristol: Optional[str] = None
     ritmo_urinario: Optional[RitmoUrinario] = None
     ingestao_hidrica: Optional[str] = None
+    nivel_hidratacao: Optional[str] = None
     disfagia: Optional[bool] = None
     odinofagia: Optional[bool] = None
     dispepsia: Optional[bool] = None

@@ -39,21 +39,21 @@ const ConsumoMensal = ({formData, setFormData}) => {
   return (
     <div>
       <div className="mb-3 p-4 border rounded-3 bg-white ">
-        <div className="d-flex justify-content-start align-items-center gap-4">
-            <div className="d-flex align-items-center gap-2">
+        <div className="row g-3">
+            <div className="d-flex align-items-center gap-2 col-md-4">
             <label className="form-label text-muted small">Quantidade de pessoas:</label>
             <input
                 type="text"
                 name="quantidade_pessoas"
                 className="form-control form-control-sm"
-                style={{ width: "150px" }}
+                style={{ width: "130px" }}
                 placeholder=""
                 value={formData.quantidade_pessoas || ""}
                 onChange={handleChange}
             />
             </div>
 
-            <div className="d-flex align-items-center gap-2">
+            <div className="d-flex align-items-center gap-2 col-md-4">
             <label className="form-label text-muted small">Açucar:</label>
             <input
                 type="text"
@@ -66,7 +66,7 @@ const ConsumoMensal = ({formData, setFormData}) => {
             />
             </div>
 
-            <div className="d-flex align-items-center gap-2">
+            <div className="d-flex align-items-center gap-2 col-md-4">
             <label className="form-label text-muted small">Óleo:</label>
             <input
                 type="text"
@@ -78,15 +78,13 @@ const ConsumoMensal = ({formData, setFormData}) => {
                 onChange={handleChange}
             />
             </div>
-            </div>
 
-            <div className="d-flex justify-content-start align-items-center gap-4 mt-3">
-            <div className="d-flex align-items-center gap-2">
+            <div className="d-flex align-items-center gap-2 col-md-4">
             <label className="form-label text-muted small">Margarina:</label>
             <input
                 type="text"
                 name="margarina"
-                style={{ width: "150px" }}
+                style={{ width: "130px" }}
                 className="form-control form-control-sm"
                 placeholder=""
                 value={formData.margarina || ""}
@@ -94,7 +92,7 @@ const ConsumoMensal = ({formData, setFormData}) => {
             />
             </div>
 
-            <div className="d-flex align-items-center gap-2">
+            <div className="d-flex align-items-center gap-2 col-md-4">
             <label className="form-label text-muted small">Sal:</label>
             <input
                 type="text"
@@ -107,7 +105,7 @@ const ConsumoMensal = ({formData, setFormData}) => {
             />
             </div>
 
-            <div className="d-flex align-items-center gap-2">
+            <div className="d-flex align-items-center gap-2 col-md-4">
             <label className="form-label text-muted small">Temperos prontos:</label>
             <input
                 type="text"
@@ -119,6 +117,20 @@ const ConsumoMensal = ({formData, setFormData}) => {
                 onChange={handleChange}
             />
             </div>
+
+            <div className="d-flex align-items-center gap-2 col-md-6">
+            <label className="form-label text-muted small">Outros:</label>
+            <textarea
+                type="text"
+                name="outros"
+                className="form-control form-control-sm"
+                placeholder=""
+                rows={5}
+                value={formData.outros || ""}
+                onChange={handleChange}
+            />
+            </div>
+            
         </div>
         </div>
     </div>

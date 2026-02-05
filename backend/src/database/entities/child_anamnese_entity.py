@@ -9,6 +9,7 @@ from sqlalchemy import (
     Enum as SqlEnum
 )
 from sqlalchemy.orm import relationship
+from src.database.entities.mixins import TimestampMixin
 from src.database.connection import Base
 from src.database.entities.enums import (
     DenticaoChildEnum, 
@@ -18,7 +19,7 @@ from src.database.entities.enums import (
     ApetiteEnum 
 )
 
-class ChildAnamnese(Base):
+class ChildAnamnese(Base, TimestampMixin):
     __tablename__ = "child_anamneses"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -104,7 +105,9 @@ class ChildAnamnese(Base):
     nauseas = Column(Boolean, nullable=True)
     vomitos = Column(Boolean, nullable=True)
     ritmo_intestinal = Column(SqlEnum(RitmoIntestinal), nullable=True)
+    escala_bristol = Column(String, nullable=True)
     ritmo_urinario = Column(SqlEnum(RitmoUrinario), nullable=True)
+    nivel_hidratacao = Column(String, nullable=True)
     pele = Column(String, nullable=True)
     unhas = Column(String, nullable=True)
     cabelo = Column(String, nullable=True)

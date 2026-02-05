@@ -9,6 +9,7 @@ from sqlalchemy import (
     Enum as SqlEnum
 )
 from sqlalchemy.orm import relationship
+from src.database.entities.mixins import TimestampMixin
 from src.database.connection import Base
 from src.database.entities.enums import (
     RitmoIntestinal, 
@@ -19,7 +20,7 @@ from src.database.entities.enums import (
 
 )
 
-class ReturnAnamnese(Base):
+class ReturnAnamnese(Base, TimestampMixin):
     __tablename__ = "return_anamneses"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -38,8 +39,10 @@ class ReturnAnamnese(Base):
     ritmo_intestinal = Column(SqlEnum(RitmoIntestinal), nullable=True)
     frequencia_ritmo_intestinal = Column(String, nullable=True)
     consistencia_ritmo_intestinal = Column(String, nullable=True)
+    escala_bristol = Column(String, nullable=True)
     ritmo_urinario = Column(SqlEnum(RitmoUrinario), nullable=True)
     ingestao_hidrica = Column(String, nullable=True)
+    nivel_hidratacao = Column(String, nullable=True)
     disfagia = Column(Boolean, nullable=True)
     odinofagia = Column(Boolean, nullable=True)
     dispepsia = Column(Boolean, nullable=True)

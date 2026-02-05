@@ -31,7 +31,7 @@ app.add_middleware(
 )
 
 # Cria as tabelas automaticamente (caso não existam)
-Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine)
 
 # Inclui as rotas
 app.include_router(user_route.router)

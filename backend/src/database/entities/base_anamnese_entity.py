@@ -12,6 +12,7 @@ from sqlalchemy import (
     Enum as SqlEnum
 )
 from sqlalchemy.orm import relationship
+from src.database.entities.mixins import TimestampMixin
 from src.database.connection import Base
 from src.database.entities.enums import (
     EscolaridadeEnum, 
@@ -20,10 +21,11 @@ from src.database.entities.enums import (
     MastigacaoEnum, 
     RitmoIntestinal, 
     RitmoUrinario,
-    ApetiteEnum 
+    ApetiteEnum,
+    SonoEnum 
 )
 
-class BaseAnamnese(Base):
+class BaseAnamnese(Base, TimestampMixin):
     __tablename__ = "base_anamneses"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -69,6 +71,9 @@ class BaseAnamnese(Base):
     quanto_tabagismo = Column(String, nullable=True)
     ja_foi_tabagista = Column(Boolean, nullable=True)
     tempo_parado_tabagismo = Column(String, nullable=True)
+    horario_dorme = Column(String, nullable=True)
+    horario_acorda = Column(String, nullable=True)
+    sono = Column(SqlEnum(SonoEnum), nullable=True)
 
     #Dados de saúde
     objetivo_consulta = Column(Text, nullable=True)
@@ -130,7 +135,9 @@ class BaseAnamnese(Base):
     vomitos = Column(Boolean, nullable=True)
     flatulencia = Column(Boolean, nullable=True)
     ritmo_intestinal = Column(SqlEnum(RitmoIntestinal), nullable=True)
+    escala_bristol = Column(String, nullable=True)
     ritmo_urinario = Column(SqlEnum(RitmoUrinario), nullable=True)
+    nivel_hidratacao = Column(String, nullable=True)
     pele = Column(String, nullable=True)
     unhas = Column(String, nullable=True)
     cabelo = Column(String, nullable=True)

@@ -92,7 +92,9 @@ class ChildAnamneseCreate(BaseModel):
     nauseas: Optional[bool] = None
     vomitos: Optional[bool] = None
     ritmo_intestinal: Optional[RitmoIntestinal] = None
+    escala_bristol: Optional[str] = None
     ritmo_urinario: Optional[RitmoUrinario] = None
+    nivel_hidratacao: Optional[str] = None
     pele: Optional[str] = None
     unhas: Optional[str] = None
     cabelo: Optional[str] = None

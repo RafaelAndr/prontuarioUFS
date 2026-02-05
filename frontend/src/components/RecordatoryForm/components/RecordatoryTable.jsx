@@ -48,7 +48,7 @@ const RecordatoryTable = ({ formData, setFormData }) => {
     <div>
       <div>
         <label className="form-label text-muted small mt-5 mb-2 d-block">
-          Tipo de Recordatório:
+          Tipo de Recordatório: *
         </label>
 
         <div className="d-flex flex-wrap gap-3 mb-2">
@@ -61,6 +61,7 @@ const RecordatoryTable = ({ formData, setFormData }) => {
               id="vinte_quatro_horas"
               checked={formData.tipo_recordatorio === "vinte_quatro_horas"}
               onChange={handleChange}
+              required={true}
               onClick={() =>
                 toggleBooleanField("tipo_recordatorio", "vinte_quatro_horas")
               }

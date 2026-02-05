@@ -37,6 +37,7 @@ class RecordatoryBase(BaseModel):
     margarina: Optional[str] = None
     sal: Optional[str] = None
     temperos_prontos: Optional[str] = None
+    outros: Optional[str] = None
 
 
 class RecordatoryCreate(RecordatoryBase):
